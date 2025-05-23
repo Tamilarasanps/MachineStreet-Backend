@@ -22,14 +22,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # Removed cache to avoid lock file error
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Create .env file
-        run: |
-          touch .env
-          echo "${{ secrets.BACKEND_ENV_FILE }}" > .env
-
       - name: Run your server or tests
         run: |
           echo "🚀 Add your test or start command here"
