@@ -1,5 +1,3 @@
-# .github/workflows/nodejs.yml
-
 name: Node.js CI/CD
 
 on:
@@ -23,8 +21,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci  # Uses package-lock.json if available
 
       - name: Create .env file
         run: |
