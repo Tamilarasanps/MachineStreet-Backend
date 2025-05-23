@@ -24,7 +24,7 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
-          echo "DB_PASSWORD=${{ secrets.BACKEND_ENV_FILE }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD}}" >> .env
           
           # Add more secrets as needed
 
