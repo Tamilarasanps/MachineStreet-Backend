@@ -3,36 +3,3 @@ name: Node.js CI/CD
 on:
   push:
     branches: [ "main" ]
-
-jobs:
-  build:
-    runs-on: self-hosted
-
-    strategy:
-      matrix:
-        node-version: [20.x]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Cache Node modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install dependencies
-        run: npm install  # Uses package-lock.json if available
-
-      - name: Create .env file
-        run: |
-          touch .env
-          echo "${{ secrets.BACKEND_ENV_FILE }}" > .env
