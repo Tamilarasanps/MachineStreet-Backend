@@ -28,3 +28,4 @@ jobs:
     - run: | 
        touch .env 
        echo "${{secrets.BACKEND_ENV_FILE}}" >.env
+       
