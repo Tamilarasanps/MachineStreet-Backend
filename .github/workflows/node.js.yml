@@ -25,6 +25,10 @@ jobs:
         run: |
           touch .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD}}" >> .env
+          echo "DB_PASSWORD=${{ secrets.TWILIO_ACCOUNT}}" >> .env
+          echo "DB_PASSWORD=${{ secrets.TWILIO_AUTH_}}" >> .env
+          echo "DB_PASSWORD=${{ secrets.TWILIO_PHONE}}" >> .env
+          
           
           # Add more secrets as needed
 
