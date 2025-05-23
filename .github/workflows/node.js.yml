@@ -20,8 +20,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          # Removed cache to avoid lock file error
 
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "DB_PASSWORD=${{ secrets.BACKEND_ENV_FILE }}" >> .env
+          
+          # Add more secrets as needed
 
       - name: Run your server or tests
         run: |
