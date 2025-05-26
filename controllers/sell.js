@@ -15,18 +15,6 @@ router.post("/", uploadImages, async (req, res) => {
       ? req.files.images.map((image) => image.id)
       : [];
 
-    console.log(req.body.industry);
-    console.log(req.body.category);
-    console.log(req.body.subcategory);
-    console.log(req.body.make);
-    console.log(req.body.price);
-    console.log(req.body.description);
-    console.log(req.body.condition);
-    console.log(req.body.yearOfMake);
-    console.log(req.body.countryCode);
-    console.log(req.body.number);
-    console.log(req.body.location);
-
     if (
       !req.body.industry ||
       !req.body.category ||

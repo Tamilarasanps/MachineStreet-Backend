@@ -1,0 +1,46 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "TWILIO_ACCOUNT=${{ secrets.TWILIO_ACCOUNT }}" >> .env
+          echo "TWILIO_AUTH_=${{ secrets.TWILIO_AUTH_ }}" >> .env
+          echo "TWILIO_PHONE=${{ secrets.TWILIO_PHONE }}" >> .env
+          echo "EMAILUSER=${{ secrets.EMAILUSER }}" >> .env
+          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env
+          echo "JWT_TOKEN=${{ secrets.JWT_TOKEN }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Restart server with PM2
+        run: pm2 restart server.js
+
+      - name: Run tests or server
+        run: |
+          echo "🚀 Add your test or start command here"
+          # Example:
+          # npm run test

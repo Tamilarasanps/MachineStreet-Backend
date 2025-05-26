@@ -73,7 +73,6 @@ const upload = multer({
 // ]);
 
 const uploadFiles = (req, res, next) => {
-  console.log("reached fileupload");
   //multer call
   upload(req, res, (err) => {
     if (err) {

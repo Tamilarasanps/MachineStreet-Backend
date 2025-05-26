@@ -90,7 +90,7 @@ const productupload = new mongoose.Schema({
       },
       message: "District is required when country is India.",
     },
-  },  
+  },
 
   description: {
     type: String,
@@ -104,7 +104,6 @@ const productupload = new mongoose.Schema({
 
 productupload.index({ "geoCoords.coordinates": "2dsphere" });
 
-// ✅ Index for Fast Filtering
 productupload.index({
   category: 1,
   industry: 1,
