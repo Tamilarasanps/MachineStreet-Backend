@@ -4,7 +4,7 @@ const crypto = require("crypto");
 require("dotenv").config();
 
 const storage = new GridFsStorage({
-  url: process.env.Mongo_URI,
+  url: process.env.MONGO_URI,
   cache: true,
   disableMD5: false,
 
@@ -78,12 +78,10 @@ const uploadFiles = (req, res, next) => {
   upload(req, res, (err) => {
     if (err) {
       console.log(err);
-      return res
-        .status(500)
-        .json({
-          message: err.message || "File upload failed",
-          error: err.message,
-        });
+      return res.status(500).json({
+        message: err.message || "File upload failed",
+        error: err.message,
+      });
     }
 
     req.images = req.files?.images || [];

@@ -15,6 +15,7 @@ const secureRoute = async (req, res, next) => {
     const decoded = jwt.verify(retrivedToken, process.env.JWT_SECRET);
     console.log("decoded :", decoded)
     if (!decoded) {
+      console.log("opopoppo")
       return res.status(401).json({ error: "Invalid Token" });
     }
     const user = await User.findById(decoded.id).select("-password"); // current loggedin user
