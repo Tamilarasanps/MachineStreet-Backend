@@ -4,12 +4,11 @@ const crypto = require("crypto");
 require("dotenv").config();
 
 const storage = new GridFsStorage({
-  url: process.env.MONGO_URI,
+  url: process.env.Mongo_URI,
   cache: true,
   disableMD5: false,
 
   file: (req, file) => {
-    console.log("file :", file);
     return new Promise((resolve, reject) => {
       crypto.randomBytes(16, (err, buf) => {
         if (err) {
