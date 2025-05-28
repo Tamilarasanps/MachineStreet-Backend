@@ -28,7 +28,7 @@ jobs:
           echo "TWILIO_ACCOUNT=${{ secrets.TWILIO_ACCOUNT }}" >> .env
           echo "TWILIO_AUTH_=${{ secrets.TWILIO_AUTH_ }}" >> .env
           echo "TWILIO_PHONE=${{ secrets.TWILIO_PHONE }}" >> .env
-          echo "EMAILUSER=${{ secrets.EMAILUSER }}" >> .env
+          echo "EMAIL_USER =${{ secrets.EMAILUSER }}" >> .env
           echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env
           echo "JWT_TOKEN=${{ secrets.JWT_TOKEN }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
