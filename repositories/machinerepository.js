@@ -5,61 +5,6 @@ const { GridFSBucket } = require("mongodb");
 const db = mongoose.connection;
 
 const machineRepository = {
-  // getSearchTermProducts: async ({ searchTerms, page }) => {
-  //   try {
-  //     console.log("searchTerms :", searchTerms)
-  //     const limit =
-  //       page === "homePage" ? Math.floor(10 / searchTerms.length) || 3 : null;
-  //     const termQueries = await Promise.all(
-  //       searchTerms.map(async (term) => {
-  //         const trimmedTerm = term.trim().replace(/\s+/g, "");
-  //         const regex = new RegExp(trimmedTerm.split("").join("\\s*"), "i");
-
-  //         const query = machines
-  //           .find({
-  //             adminApproval: "approved",
-  //             $or: [{ industry: regex }, { category: regex }, { make: regex }],
-  //           })
-  //           .limit(limit)
-  //           .lean(); // ✅ Setting limit before hitting the DB
-
-  //         const results = await query;
-  //         const productsWithFiles = await machineRepository.getProductFiles(
-  //           results
-  //         );
-
-  //         const result = {
-  //           location: {},
-  //           productsWithFiles: productsWithFiles,
-  //         };
-
-  //         if (page !== "homePage") {
-  //           results.forEach((mech) => {
-  //             const { region, district } = mech;
-
-  //             if (region && district) {
-  //               if (!result.location[region]) {
-  //                 result.location[region] = new Set();
-  //               }
-  //               result.location[region].add(district);
-  //             }
-  //           });
-
-  //           // Convert Sets to arrays
-  //           Object.keys(result.location).forEach((region) => {
-  //             result.location[region] = Array.from(result.location[region]);
-  //           });
-  //         }
-
-  //         return result;
-  //       })
-  //     );
-
-  //     return termQueries.flat();
-  //   } catch (error) {
-  //     throw new Error(error.message);
-  //   }
-  // },
 
   getSearchTermProducts: async ({ searchTerms, page, pageCount, limit }) => {
     try {
@@ -187,6 +132,7 @@ const machineRepository = {
       throw new Error(error.message);
     }
   },
+
   getProducts: async ({ id }) => {
     try {
       // 1. Find the main product
@@ -209,7 +155,6 @@ const machineRepository = {
         })
         .limit(5)
         .lean();
-      console.log("recommended :", recommended);
 
       // 3. Fetch files
       const mainWithFiles = await machineRepository.getProductFiles([
@@ -263,6 +208,7 @@ const machineRepository = {
       throw new Error(error.message);
     }
   },
+
   getCategories: async ({ categories }) => {
     try {
       let totalProductCount = 0; // Initialize total count
@@ -307,6 +253,7 @@ const machineRepository = {
       throw new Error(error.message);
     }
   },
+
   getSubCategories: async (subCategories) => {
     try {
       let totalProductCount = 0; // Initialize total count
@@ -357,8 +304,7 @@ const machineRepository = {
   },
 
   getProductsByLocation: async (longitude, latitude) => {
-    console.log("longitude :", longitude);
-    console.log("latitude :", latitude);
+    
     try {
       const radiusInKm = 200;
       const radiusInRadians = radiusInKm / 6378.1;
@@ -429,124 +375,3 @@ const machineRepository = {
 };
 
 module.exports = machineRepository;
-
-// getProducts: async ({
-//   industry,
-//   category,
-//   categories,
-//   searchTerms,
-//   location,
-// } = {}) => {
-//   try {
-//     let query = {};
-//     let limit = 0;
-//     let products;
-//     let shuffledIndustries;
-
-//     console.log(searchTerms);
-//     if (industry && category) {
-//       query = { industry, category };
-//     } else if (categories && Array.isArray(categories)) {
-//       const categoryQueries = categories.map((category) => {
-//         const trimmedCategory = category.trim().replace(/\s+/g, "");
-//         const regex = new RegExp(trimmedCategory.split("").join("\\s*"), "i");
-//         return regex;
-//       });
-//       query = { category: { $in: categoryQueries } };
-//     } else if (searchTerms) {
-//       limit = 10;
-//       const termQueries = searchTerms.map((term) => {
-//         const trimmedTerm = term.trim().replace(/\s+/g, ""); // Remove spaces from the search term
-//         const regex = new RegExp(trimmedTerm.split("").join("\\s*"), "i"); // Match term with optional spaces between characters
-//         return {
-//           $or: [{ industry: regex }, { category: regex }, { make: regex }],
-//         };
-//       });
-//       query = { $or: termQueries.flat() };
-//     } else if (location) {
-//       query = { location };
-//     }
-
-//     console.log(limit);
-//     console.log(query);
-//     if ((industry && category) || categories || searchTerms || location) {
-//       products =
-//         limit === 0
-//           ? await machines.find(query).lean()
-//           : await machines.find(query).limit(limit).lean();
-//     } else {
-//       const industries = await machines.distinct("industry");
-//       shuffledIndustries = industries.sort(() => Math.random() - 0.5);
-
-//       products = await Promise.all(
-//         shuffledIndustries
-//           .slice(0, 10)
-//           .map((industry) =>
-//             machines
-//               .findOne(
-//                 { industry },
-//                 { machineImages: 1, machineVideos: 1, industry: 1, _id: 0 }
-//               )
-//               .lean()
-//           )
-//       );
-//     }
-
-//     if (!products.length) return [];
-
-//     const imageBucket = new GridFSBucket(db, { bucketName: "images" });
-//     const videoBucket = new GridFSBucket(db, { bucketName: "videos" });
-
-//     const productsWithFiles = await Promise.all(
-//       products.map(async (product) => {
-//         const imagePromises =
-//           product.machineImages?.map(async (imageId) => {
-//             const imageStream = imageBucket.openDownloadStream(
-//               new mongoose.Types.ObjectId(imageId)
-//             );
-//             return new Promise((resolve, reject) => {
-//               const chunks = [];
-//               imageStream.on("data", (chunk) => chunks.push(chunk));
-//               imageStream.on("end", () =>
-//                 resolve(Buffer.concat(chunks).toString("base64"))
-//               );
-//               imageStream.on("error", (err) => reject(err));
-//             });
-//           }) || [];
-
-//         const videoPromises =
-//           product.machineVideos?.map(async (videoId) => {
-//             const videoStream = videoBucket.openDownloadStream(
-//               new mongoose.Types.ObjectId(videoId)
-//             );
-//             return new Promise((resolve, reject) => {
-//               const chunks = [];
-//               videoStream.on("data", (chunk) => chunks.push(chunk));
-//               videoStream.on("end", () =>
-//                 resolve(Buffer.concat(chunks).toString("base64"))
-//               );
-//               videoStream.on("error", (err) => reject(err));
-//             });
-//           }) || [];
-
-//         const [images, videos] = await Promise.all([
-//           Promise.all(imagePromises),
-//           Promise.all(videoPromises),
-//         ]);
-
-//         return {
-//           ...product,
-//           machineImages: images,
-//           machineVideos: videos,
-//         };
-//       })
-//     );
-//     console.log(shuffledIndustries);
-//     return {
-//       productsWithFiles,
-//       shuffledIndustries: shuffledIndustries || "",
-//     };
-//   } catch (error) {
-//     throw new Error(error.message);
-//   }
-// },

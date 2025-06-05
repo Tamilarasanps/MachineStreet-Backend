@@ -5,7 +5,7 @@ const {
   SubCategory,
   Brand,
 } = require("../../models/CategoryModel");
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
@@ -96,7 +96,9 @@ router.put("/editCategory", async (req, res) => {
       category: selectedCategory,
     });
 
-    const existingSubCatIds = existingSubCategories.map((sc) => sc._id.toString());
+    const existingSubCatIds = existingSubCategories.map((sc) =>
+      sc._id.toString()
+    );
 
     const incomingSubCatIds = subCategories
       .filter((sc) => sc._id)
@@ -166,11 +168,10 @@ router.put("/editCategory", async (req, res) => {
   }
 });
 
-
 router.delete("/:id/:field", async (req, res) => {
   try {
     const { id, field } = req.params;
-    console.log(id, field )
+    console.log(id, field);
 
     if (!id) return res.status(400).json({ message: "id is required" });
     if (!mongoose.Types.ObjectId.isValid(id))
@@ -181,7 +182,9 @@ router.delete("/:id/:field", async (req, res) => {
       const categories = await Category.find({ industry: id });
 
       for (const category of categories) {
-        const subCategories = await SubCategory.find({ category: category._id });
+        const subCategories = await SubCategory.find({
+          category: category._id,
+        });
 
         for (const sub of subCategories) {
           await Brand.deleteMany({ subCategory: sub._id });
@@ -193,8 +196,9 @@ router.delete("/:id/:field", async (req, res) => {
       await Category.deleteMany({ industry: id });
       await Industry.findByIdAndDelete(id);
 
-      return res.status(200).json({ message: "Industry and all related data deleted." });
-
+      return res
+        .status(200)
+        .json({ message: "Industry and all related data deleted." });
     } else if (field === "category") {
       const subCategories = await SubCategory.find({ category: id });
 
@@ -205,14 +209,19 @@ router.delete("/:id/:field", async (req, res) => {
       await SubCategory.deleteMany({ category: id });
       await Category.findByIdAndDelete(id);
 
-      return res.status(200).json({ message: "Category and all related data deleted." });
+      return res
+        .status(200)
+        .json({ message: "Category and all related data deleted." });
     }
 
-    return res.status(400).json({ message: "Invalid field. Must be 'industry' or 'category'." });
-
+    return res
+      .status(400)
+      .json({ message: "Invalid field. Must be 'industry' or 'category'." });
   } catch (err) {
     console.error("Delete error:", err.message);
-    return res.status(500).json({ message: "Internal Server Error", error: err.message });
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", error: err.message });
   }
 });
 router.get("/getCategory/:selectedData?/:fetchdata?", async (req, res) => {
@@ -239,7 +248,9 @@ router.get("/getCategory/:selectedData?/:fetchdata?", async (req, res) => {
           return res.status(404).json({ message: "Category not found" });
         }
 
-        const subCategories = await SubCategory.find({ category: selectedData }).lean();
+        const subCategories = await SubCategory.find({
+          category: selectedData,
+        }).lean();
 
         const subCategoriesWithBrands = await Promise.all(
           subCategories.map(async (sub) => {
@@ -266,18 +277,5 @@ router.get("/getCategory/:selectedData?/:fetchdata?", async (req, res) => {
     res.status(500).json({ message: err.message, error: err });
   }
 });
-
-// router.get('/checkCategory',async(req,res)=>{
-//   console.log("ok")
-//   try{
-//     const category = req.query.category;
-//     console.log(category)
-//     const response = await categoryModel.findOne({industry:{$regex : new RegExp(`^${category}$`,'i')}})
-//     console.log(response)
-//   }
-//   catch(err){
-//     console.log(err)
-//   }
-// })
 
 module.exports = router;

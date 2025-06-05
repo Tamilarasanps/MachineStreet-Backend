@@ -10,6 +10,7 @@ const db = mongoose.connection;
 
 const mechanicRepository = {
   getMechanics: async (page, limit, userId) => {
+    console.log(page, limit, userId)
     try {
       const skip = (page - 1) * limit;
 
@@ -30,12 +31,6 @@ const mechanicRepository = {
           const bannerImage = await mechanicRepository.getProductFiles(
             mechanic.banner
           );
-
-          // res.json({
-          //   data: mechanics,
-          //   totalPages: Math.ceil(total / limit),
-          //   currentPage: page,
-          // });
 
           // Return a new mechanic object with the updated profile image
           return {
@@ -119,7 +114,6 @@ const mechanicRepository = {
         })
       );
 
-      console.log(updatedComments);
       return updatedComments;
     } catch (err) {
       console.log(err);
@@ -385,12 +379,7 @@ const mechanicRepository = {
         },
         { new: true }
       );
-      console.log({
-        _id: newComment._id,
-        comment: newComment.comment,
-        createdAt: newComment.createdAt,
-        userId: user,
-      });
+    
       // Emit new comment with populated user data
       io.to(postId).emit("comments-updated", {
         comment: {
@@ -462,53 +451,6 @@ const mechanicRepository = {
     }
   },
 
-  //   const productsWithFiles = await Promise.all(
-  //     results.map(async (product) => {
-  //       // Fetch Images
-  //       const imagePromises =
-  //         product.machineImages?.map(async (imageId) => {
-  //           const imageStream = imageBucket.openDownloadStream(
-  //             new mongoose.Types.ObjectId(imageId)
-  //           );
-  //           return new Promise((resolve, reject) => {
-  //             const chunks = [];
-  //             imageStream.on("data", (chunk) => chunks.push(chunk));
-  //             imageStream.on("end", () =>
-  //               resolve(Buffer.concat(chunks).toString("base64"))
-  //             );
-  //             imageStream.on("error", (err) => reject(err));
-  //           });
-  //         }) || [];
-
-  //       // Fetch Videos
-  //       const videoPromises =
-  //         product.machineVideos?.map(async (videoId) => {
-  //           const videoStream = videoBucket.openDownloadStream(
-  //             new mongoose.Types.ObjectId(videoId)
-  //           );
-  //           return new Promise((resolve, reject) => {
-  //             const chunks = [];
-  //             videoStream.on("data", (chunk) => chunks.push(chunk));
-  //             videoStream.on("end", () =>
-  //               resolve(Buffer.concat(chunks).toString("base64"))
-  //             );
-  //             videoStream.on("error", (err) => reject(err));
-  //           });
-  //         }) || [];
-
-  //       // Resolve Promises
-  //       const [images, videos] = await Promise.all([
-  //         Promise.all(imagePromises),
-  //         Promise.all(videoPromises),
-  //       ]);
-
-  //       return {
-  //         ...product,
-  //         machineImages: images,
-  //         machineVideos: videos,
-  //       };
-  //     })
-  //   );
 };
 
 module.exports = mechanicRepository;

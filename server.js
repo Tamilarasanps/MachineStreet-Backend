@@ -1,9 +1,7 @@
 const express = require("express");
-const mongoose = require("mongoose");
-const { Server } = require("socket.io");
-const { createServer } = require("http");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const helmet = require("helmet");
 
 const cors = require("cors");
 
@@ -19,6 +17,7 @@ const categoryPage = require("./controllers/Client/Industry");
 const sell = require("./controllers/sell");
 const productPageRoute = require("./routes/ProductPageRoutes.js");
 const categoryRoutes = require("./routes/categoryRoutes.js");
+const landinPage = require("./routes/LandingPage.js");
 const productDetailRoutes = require("./routes/productDetails.js");
 const AdminProduct = require("./routes/AdminProduct.js");
 const profilePage = require("./routes/profileRoutes.js");
@@ -28,38 +27,58 @@ const wishlist = require("./routes/wishList.js");
 const video = require("./routes/video.js");
 const mechanicRoutes = require("./routes/mechanicRoutes");
 const search = require("./controllers/Client/SearchController.js");
-const supportTicket = require("./controllers/Client/supportTicket.js")
+const supportTicket = require("./controllers/Client/supportTicket.js");
+const geo = require('./middlewares/geocoords.js')
+const axios = require("axios");
 
-// const { getMessage, sendMessage } = require( "./controllers/Client/message_controller.js");
-// const secureRoute = require("./middlewares/secureRoute.js");
 const messageRoute = require("./routes/messageRoute.js");
 const { app, server } = require("./socket/server.js");
-const productListPage = require("./controllers/Client/productListPage.js");
-
-// const app = express();
-const httpServer = createServer(app);
 
 //express setup
-app.use(cors({ origin: "*" }));
+
+const allowedOrigins = ["https://machinestreets.com","https://faceqrapp.netlify.app/"];
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+    else callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+}));
+
+const rateLimit = require("express-rate-limit");
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, 
+  message: "Too many requests from this IP, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false, 
+});
+
+
+app.use(helmet());
 app.use(express.json()); // Parses JSON request body
 app.use(express.urlencoded({ extended: true })); // Parses form data
-
-//connections
-connect(); //mongo
-
-// const whitelist = ['http://localhost:5173',]; // Replace with your frontend IP and port
-// const corsOptions = {
-//   origin: (origin, callback) => {
-//     if (whitelist.indexOf(origin) !== -1 || !origin) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   }
-// };
 app.use(bodyParser.json({ limit: "200mb" }));
 app.use(bodyParser.urlencoded({ limit: "200mb", extended: true }));
 app.use(cookieParser());
+app.use(limiter); // Apply to all routes
+
+app.get("/api/reverse-geocode", async (req, res) => {
+  const { lat, lon } = req.query;
+  try {
+    const response = await axios.get(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+    );
+    res.json(response.data);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Failed to fetch location" });
+  }
+});
+
+//connections
+connect(); //mongo
 
 app.get("/", (req, res) => {
   res.send("Server is running!");
@@ -91,31 +110,8 @@ app.use("/video", video);
 app.use("/mechanicList", mechanicRoutes);
 app.use("/searchResult", search);
 app.use("/supportTicket", supportTicket);
-
-//socket setup
-
-// const io = new Server(httpServer, {
-//   cors: {
-//     origin: "*", // Allows requests from any domain
-//     methods: ["GET", "POST", "PUT", "DELETE"], // Allows all necessary methods
-//   },
-// });
-
-// const connectedSockets = new Map();
-
-// io.on("connection", (socket) => {
-//   console.log("socket connected successfully", socket.id);
-//   connectedSockets.set(socket.id, socket);
-
-//   socket.on('disconnect',()=>{
-//     console.log('User disconnected: ' + socket.id);
-//     connectedSockets.delete(socket.id);
-//   })
-// });
-
-// io.on("connect_error", (err) => {
-//   console.log("Connection Error: ", err.message);
-// });
+app.use("/landingPage", landinPage);
+app.use("/geocoords",geo)
 
 const PORT = process.env.PORT || 5000;
 

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const postModel = require("./postModel");
+
 const subCategorySchema = new mongoose.Schema({
   name: {
     type: String,

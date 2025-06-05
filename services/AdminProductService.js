@@ -1,5 +1,4 @@
 const AdminProductRepository = require("../repositories/AdminProductRepository");
-const machineRepository = require("../repositories/machinerepository");
 const mechanicRepository = require("../repositories/mechanicRepository");
 
 const AdminProductService = {
@@ -59,19 +58,18 @@ const AdminProductService = {
   getQr: async () => {
     try {
       const updated = await AdminProductRepository.getQr();
+      console.log(updated);
 
       const result = await Promise.all(
         updated.map(async (qr) => {
+          console.log(qr.qr)
           const productWithFiles = await mechanicRepository.getProductFiles(
-            qr.qrConfig.backgroundImage
+            qr.qr
           );
 
           return {
             ...qr,
-            qrConfig: {
-              ...qr.qrConfig,
-              backgroundImage: productWithFiles,
-            },
+            qr: productWithFiles,
           };
         })
       );

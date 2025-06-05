@@ -8,22 +8,22 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://machinestreets.com", // 👈 Allow only your frontend domain
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
-console.log("socket reached");
+
 // Store user socket mappings
 const users = [];
 
 // Utility to get socket IDs for sender and receiver
 const getReceiverSocketId = (receiverId, senderId) => {
   const getSocketId = (id) =>
-    users.find(user => Object.keys(user)[0] === id)?.[id];
+    users.find((user) => Object.keys(user)[0] === id)?.[id];
 
   return [getSocketId(receiverId), getSocketId(senderId)];
 };
-
 
 //helper function to remove users from socket
 
@@ -78,6 +78,15 @@ io.on("connection", (socket) => {
   socket.on("join-post-room", (postId) => {
     socket.join(postId);
     console.log(`User ${socket.id} joined post room ${postId}`);
+    const room = io.sockets.adapter.rooms.get(postId);
+    if (room) {
+      const members = Array.from(room);
+      console.log(`Users in room ${postId}:`, members);
+      return members;
+    } else {
+      console.log(`Room ${postId} does not exist or is empty.`);
+      return [];
+    }
   });
 
   socket.on("leave-post-room", (postId) => {
@@ -86,7 +95,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join-review-room", (mechId) => {
-    console.log("@review");
     socket.join(mechId);
     console.log(`User ${socket.id} joined post room ${mechId}`);
   });

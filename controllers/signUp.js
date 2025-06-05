@@ -4,6 +4,8 @@ const NodeCache = require("node-cache");
 const user = require("../models/userSIgnUp");
 const mobileOrEmailCheck = require("../middlewares/mobileOrEmailCheck");
 const bcrypt = require("bcryptjs");
+const getGeoCoords = require('../middlewares/geocoords')
+// const twilio = require("twilio");
 require("dotenv").config();
 
 const router = express.Router();
@@ -20,6 +22,20 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
+// const mobileClient = twilio(
+//   process.env.TWILIO_ACCOUNT_SID,
+//   process.env.TWILIO_AUTH_TOKEN
+// );
+
+// const sendMobileOtp = async (phone, otp) => {
+//   console.log("process.env.TWILIO_PHONE_NUMBER :", process.env.TWILIO_PHONE_NUMBER)
+//   return mobileClient.messages.create({
+//     body: `Your OTP is: ${otp}`,
+//     to:"+916363832628",
+//     from:  "+1 276 533 8601",
+//   });
+// };
 
 // Utility to send OTP via Email
 const sendEmailOTP = async (email, otp) => {
@@ -48,13 +64,13 @@ const cacheStore = async (
   mechanicDetails,
   otp
 ) => {
-  console.log("username :", username)
-  console.log("recipient :", recipient)
-  console.log("mailOrphone :", mailOrphone)
-  console.log("role :", role)
-  console.log("mechanicDetails :", mechanicDetails)
-  console.log("otp :", otp)
-  const response = await sendEmailOTP(mailOrphone, otp);
+
+  let response;
+  if (recipient === "email") {
+    response = await sendEmailOTP(mailOrphone, otp);
+  } else {
+    // response = await sendMobileOtp(mailOrphone, otp);
+  }
   const userData = {
     username,
     [recipient]: mailOrphone,
@@ -66,7 +82,6 @@ const cacheStore = async (
     username,
     OTP: otp,
   };
-  console.log("userotp,", userOtp);
   myCache.set(mailOrphone + "otp", userOtp, 30);
   myCache.set(mailOrphone, userData, 300);
   return response;
@@ -74,8 +89,7 @@ const cacheStore = async (
 
 const getCachedOtp = (req, res, next) => {
   const { mailOrphone } = req.body;
-  const cachedData = myCache.get(mailOrphone+"otp");
-  console.log("cached :", cachedData);
+  const cachedData = myCache.get(mailOrphone + "otp");
 
   if (!myCache.has(mailOrphone)) {
     return res.status(404).json({ message: "Otp expired." });
@@ -94,8 +108,7 @@ const getCache = (req, res, next) => {
 
   if (!myCache.has(mailOrphone)) {
     return res.status(404).json({ message: "Session has expired." });
-  } 
-  else if (!userData) {
+  } else if (!userData) {
     return res.status(410).json({ message: "Session has expired." });
   }
 
@@ -118,7 +131,6 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
 
   try {
     const otp = generateOTP();
-    console.log("otp", otp);
     const response = await cacheStore(
       username,
       req.recipient,
@@ -153,8 +165,7 @@ router.post(
   async (req, res) => {
     try {
       const { otp, mailOrphone } = req.body;
-      console.log("otp", otp);
-      console.log(otp, mailOrphone);
+
       // Validate input
       if (!otp || !mailOrphone) {
         console.error("Missing OTP or email/mobile.");
@@ -169,7 +180,6 @@ router.post(
         mailOrphone === req.user[req.recipient] &&
         otp === req.user.OTP
       ) {
-        console.log("OTP verification successful.");
         return res
           .status(200)
           .json({ message: "OTP verification successful." });
@@ -223,7 +233,7 @@ router.post("/resendotp", mobileOrEmailCheck, getCache, async (req, res) => {
 router.post("/register", async (req, res) => {
   try {
     const { password, confirmpass, mailOrphone } = req.body;
-    console.log(mailOrphone)
+    console.log(mailOrphone);
     // Validate input
     if (!password || !confirmpass || !mailOrphone) {
       return res.status(400).json({
@@ -259,8 +269,27 @@ router.post("/register", async (req, res) => {
 
     // Check if the role is "mechanic" and add additional fields
     if (cachedUser.role === "mechanic") {
-      console.log("mobile :", typeof cachedUser.mechanicDetails.mobile);
       const location = JSON.parse(cachedUser.mechanicDetails.location);
+
+      // If coords missing, get from state/district
+      let coords = location?.coords;
+      if (!coords?.latitude || !coords?.longitude) {
+        const locationQuery =
+          location.district || location.region || location.country;
+        const geo = await getGeoCoords(locationQuery);
+
+        if (!geo) {
+          return res.status(400).json({
+            message: "Could not fetch geo coordinates from location.",
+          });
+        }
+
+        coords = {
+          latitude: geo.lat,
+          longitude: geo.lon,
+        };
+      }
+
       newUserData.organization =
         cachedUser.mechanicDetails.organization || null;
       newUserData.services = cachedUser.mechanicDetails.services || null;
@@ -272,8 +301,8 @@ router.post("/register", async (req, res) => {
       newUserData.geoCoords = {
         type: "Point",
         coordinates: [
-          Number(location.coords.longitude),
-          Number(location.coords.latitude),
+          Number(coords.longitude),
+          Number(coords.latitude),
         ],
       };
       newUserData.country = location.country;

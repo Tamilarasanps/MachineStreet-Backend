@@ -5,6 +5,7 @@ const {
 const secureRoute = require("../middlewares/secureRoute");
 const uploadFiles = require("../middlewares/productUpload");
 const router = express.Router();
+console.log("route reached")
 router.post("/", secureRoute,uploadFiles, postQr);
 
 module.exports = router;

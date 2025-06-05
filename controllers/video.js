@@ -1,14 +1,5 @@
-//  const product = require('../models/productUpload')
 const mongoose = require("mongoose");
-// const Grid = require("gridfs-stream");
 
-// let gfs;
-// const conn = mongoose.connection;
-
-// conn.once("open", () => {
-//   gfs = Grid(conn.db, mongoose.mongo);
-//   gfs.collection("videos"); // Use the correct bucket
-// });  
 const ObjectId = mongoose.Types.ObjectId;
 
 const video = async(req,res)=>{

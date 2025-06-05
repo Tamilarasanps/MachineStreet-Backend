@@ -26,7 +26,7 @@ const productListPage = async (req, res) => {
 const productDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id);
+    
     const product = await machineRepository.getProducts({ id: id });
     //  if (!searchTerms) {
     //       // recommentations = await machineRepository.getSearchTermProducts({

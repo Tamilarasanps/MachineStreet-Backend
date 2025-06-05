@@ -23,7 +23,6 @@ const profileService = {
   },
   passwordReset: async (userId,newPass) => {
     try {
-console.log(userId,newPass)
 
       const userProfile = await profileRepository.passwordReset(userId,newPass);
       return(userProfile)

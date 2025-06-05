@@ -13,6 +13,7 @@ const mobileOrEmailCheck = (req, res, next) => {
   }
 
   req.recipient = emailRegex.test(mailOrphone) ? "email" : "mobile";
+
   next();
 };
 

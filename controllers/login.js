@@ -11,7 +11,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
 router.post("/", mobileOrEmailCheck, async (req, res) => {
   try {
     const { mailOrphone, password } = req.body;
-    console.log(req.recipient);
 
     // Search for user by email/mobile
     const user = await usermodel.collection.findOne({
@@ -30,8 +29,8 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
         res.status(200).json({
           message: "Logged In Successfully",
           token, // Return the token
-          role:user.role,
-          qr : user.qr
+          role: user.role,
+          qr: user.qr,
         });
       } else {
         console.log("Invalid Password");

@@ -106,7 +106,6 @@ const mechanicService = {
     }
   },
   getPosts: async (MechId, userId) => {
-    console.log("service reached");
 
     try {
       const posts = await mechanicRepository.getPosts(MechId, userId);

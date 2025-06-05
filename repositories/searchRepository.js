@@ -1,8 +1,4 @@
 const searchModel = require("../models/searchTerms");
-const machines = require("../models/productUpload");
-const getproducts = require("../middlewares/getProducts");
-const getProducts = require("../middlewares/getProducts");
-const machineRepository = require('../repositories/machinerepository')
 
 const searchRepository = {
   postSearchTerms: async (id, searchTerms) => {

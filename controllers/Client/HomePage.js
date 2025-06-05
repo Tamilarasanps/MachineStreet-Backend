@@ -1,13 +1,8 @@
 const express = require("express");
 const CategoryService = require("../../services/categoryService");
-const machineService = require("../../services/machineService");
 const searchService = require("../../services/searchService");
-const Auth = require("../../middlewares/authMiddleware");
 const categoryModel = require("../../models/categoryCreation");
-const machine = require("../../models/productUpload");
 const machineRepository = require("../../repositories/machinerepository");
-const searchRepository = require("../../repositories/searchRepository");
-const secureRoute = require("../../middlewares/secureRoute");
 const User = require("../../models/userSIgnUp");
 const AdminProductService = require("../../services/AdminProductService");
 const router = express.Router();
@@ -19,7 +14,6 @@ router.get("/", async (req, res) => {
     let searchTerms;
     const { latitude, longitude } = req.query;
     const token = req.headers.authorization;
-    console.log("token :", token);
     let userId;
 
     // ✅ Verify token and get searchTerms
@@ -178,30 +172,5 @@ router.get("/search/:searchBar", async (req, res) => {
     return res.status(500).json({ message: err.message, err: err });
   }
 });
-
-// router.post("/searchTerms", async (req, res) => {
-//   try {
-//     const { id, searchTerms } = req.body;
-//     if (!id) {
-//       return res.status(400).json({ message: "id is required" });
-//     }
-//     const response = await searchService.postSearchTerms(id, searchTerms);
-//     return res.status(200).json({ response });
-//   } catch (err) {
-//     return res.status(500).json({ message: err.message, err: err });
-//   }
-// });
-// router.get("/recommended", async (req, res) => {
-//   try {
-//     const { id } = req.body;
-//     if (!id) {
-//       return res.status(400).json({ message: "id is required" });
-//     }
-
-//     return res.status(200).json({ response });
-//   } catch (err) {
-//     return res.status(500).json({ message: err.message });
-//   }
-// });
 
 module.exports = router;

@@ -31,16 +31,16 @@ const AdminProductRepository = {
     } catch (err) {}
   },
   // Upload and store banner images
- getQr: async () => {
-  try {
-    // This will return plain JavaScript objects instead of Mongoose documents
-    const qrCodes = await qr.find().lean();
-    return qrCodes;
-  } catch (err) {
-    console.error("Error fetching banners:", err);
-    throw err;
-  }
-},
+  getQr: async () => {
+    try {
+      // This will return plain JavaScript objects instead of Mongoose documents
+      const qrCodes = await qr.find().lean();
+      return qrCodes;
+    } catch (err) {
+      console.error("Error fetching banners:", err);
+      throw err;
+    }
+  },
  getbanners: async () => {
   try {
     // This will return plain JavaScript objects instead of Mongoose documents

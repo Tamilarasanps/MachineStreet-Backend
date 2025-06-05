@@ -3,7 +3,6 @@ const wishlistRepository = require('../../repositories/wishlistRepository')
 
 const addWishlist = async (req,res) => {
   try {
-    console.log("ok")
     const userId = req.user.id;
     const {productId} = req.body;
     const result =  await wishlistService.add(userId,productId)

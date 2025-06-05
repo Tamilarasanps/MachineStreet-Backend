@@ -1,11 +1,8 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userSIgnUp");
 const secureRoute = async (req, res, next) => {
-
   try {
     const token = req.headers.authorization;
-    console.log(req.headers)
-    console.log("!token :" , token)
 
     if (!token) {
       return res.status(401).json({ error: "No token, authorization denied" });
@@ -13,9 +10,7 @@ const secureRoute = async (req, res, next) => {
 
     const retrivedToken = token.split(" ")[1]; // Extract the token
     const decoded = jwt.verify(retrivedToken, process.env.JWT_SECRET);
-    console.log("decoded :", decoded)
     if (!decoded) {
-      console.log("opopoppo")
       return res.status(401).json({ error: "Invalid Token" });
     }
     const user = await User.findById(decoded.id).select("-password"); // current loggedin user

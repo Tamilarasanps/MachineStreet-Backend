@@ -68,7 +68,6 @@ router.post("/", uploadImages, async (req, res) => {
     };
 
     const result = await uploadModel.create(newMachine);
-    console.log(result);
 
     if (result) {
       return res.status(201).json({
