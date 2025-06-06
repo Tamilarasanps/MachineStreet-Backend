@@ -3,7 +3,7 @@ require('dotenv').config();
 const gridfsStream = require('gridfs-stream')
 
 const connect = async () => {
-    const uri = process.env.Mongo_URI;
+    const uri = process.env.MONGO_URI;
     try {
         const conn = await mongoose.connect(uri, {
             useNewUrlParser: true,

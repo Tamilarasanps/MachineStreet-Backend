@@ -4,7 +4,7 @@ const crypto = require("crypto");
 require("dotenv").config();
 
 const storage = new GridFsStorage({
-  url: process.env.Mongo_URI,
+  url: process.env.MONGO_URI,
   cache: true,
   disableMD5: false,
 
