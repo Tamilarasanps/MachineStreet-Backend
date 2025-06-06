@@ -57,20 +57,6 @@ const upload = multer({
   { name: "videos", maxCount: 2 },
 ]);
 
-// const upload = multer({
-//   storage,
-//   limits: { fileSize: 20 * 1024 * 1024 }, // smaller limit for test
-//   fileFilter: (req, file, cb) => {
-//     const allowed = /jpeg|jpg|png|webp|mp4/;
-//     const ext = file.mimetype.split("/")[1];
-//     if (allowed.test(ext)) cb(null, true);
-//     else cb(new Error("Invalid file type"));
-//   },
-// }).fields([
-//   { name: "images", maxCount: 10 },
-//   { name: "videos", maxCount: 2 },
-// ]);
-
 const uploadFiles = (req, res, next) => {
   //multer call
   upload(req, res, (err) => {

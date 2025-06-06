@@ -23,15 +23,16 @@ jobs:
 
       - name: Create .env file
         run: |
-          touch .env
-          echo "Mongo_URI=${{ secrets.Mongo_URI }}" >> .env
-          echo "TWILIO_ACCOUNT=${{ secrets.TWILIO_ACCOUNT }}" >> .env
-          echo "TWILIO_AUTH_=${{ secrets.TWILIO_AUTH_ }}" >> .env
-          echo "TWILIO_PHONE=${{ secrets.TWILIO_PHONE }}" >> .env
-          echo "EMAIL_USER =${{ secrets.EMAILUSER }}" >> .env
+         touch .env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+          echo "TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}" >> .env
+          echo "TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}" >> .env
+          echo "TWILIO_PHONE_NUMBER=${{ secrets.TWILIO_PHONE_NUMBER }}" >> .env
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> .env
           echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env
-          echo "JWT_TOKEN=${{ secrets.JWT_TOKEN }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
+
 
       - name: Install dependencies
         run: npm install
