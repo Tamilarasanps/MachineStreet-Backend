@@ -47,13 +47,13 @@ app.use(cors({
 
 const rateLimit = require("express-rate-limit");
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, 
-  message: "Too many requests from this IP, please try again later.",
-  standardHeaders: true,
-  legacyHeaders: false, 
-});
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, 
+//   message: "Too many requests from this IP, please try again later.",
+//   standardHeaders: true,
+//   legacyHeaders: false, 
+// });
 
 
 app.use(helmet());
@@ -62,7 +62,7 @@ app.use(express.urlencoded({ extended: true })); // Parses form data
 app.use(bodyParser.json({ limit: "200mb" }));
 app.use(bodyParser.urlencoded({ limit: "200mb", extended: true }));
 app.use(cookieParser());
-app.use(limiter); // Apply to all routes
+// app.use(limiter); // Apply to all routes
 
 app.get("/api/reverse-geocode", async (req, res) => {
   const { lat, lon } = req.query;
