@@ -1,11 +1,14 @@
 const { Server } = require("socket.io");
-const http = require("http");
+const https = require("https");
 const express = require("express");
 const jwt = require("jsonwebtoken");
 
 const app = express();
 
-const server = http.createServer(app);
+const server = https.createServer({
+  key: fs.readFileSync("/etc/letsencrypt/live/api.machinestreets.com/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/api.machinestreets.com/fullchain.pem"),
+}, app);
 const io = new Server(server, {
   cors: {
     origin: "https://machinestreets.com", // 👈 Allow only your frontend domain
@@ -50,7 +53,7 @@ function addUser(userId, socketId) {
 // Socket connection handler
 io.on("connection", (socket) => {
   console.log("io reached");
-  console.log("a user connected", socket.id);
+  console.log("a user connected", socket.id);x
 
   const token = socket.handshake.query.token;
   let decoded = null;
