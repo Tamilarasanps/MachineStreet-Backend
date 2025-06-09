@@ -17,10 +17,7 @@ const CategoryRepository = {
         .collection("states")
         .find({
           _id: {
-            $in: [
-              new ObjectId("6846c641b2a889fa645ef28f"),
-              new ObjectId("6846c228b2a889fa645ef28d"),
-            ],
+            $in: ["6846c641b2a889fa645ef28f", "6846c228b2a889fa645ef28d"],
           },
         })
         .toArray();
@@ -78,7 +75,7 @@ const CategoryRepository = {
 
       const categoryNames = categories.map((cat) => cat.name);
       const industries = await Industry.find({}, "name").lean();
-      return ({categoryNames,industries});
+      return { categoryNames, industries };
     } catch (err) {
       throw new Error(err.message);
     }
