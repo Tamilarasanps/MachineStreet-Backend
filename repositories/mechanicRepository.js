@@ -322,12 +322,9 @@ const mechanicRepository = {
         mechanic.reviews.push(savedReview._id);
         await mechanic.save();
 
-        console.log("Review added to mechanic:", mechanic.username);
       } else {
         console.log("User is not a mechanic. Review not linked.");
       }
-
-      console.log(userReview.mechId, "jgdvshvihdsbvihbds");
 
       const populatedReview = await ReviewModel.findById(
         savedReview._id

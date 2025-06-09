@@ -18,8 +18,8 @@ const CategoryRepository = {
         .find({
           _id: {
             $in: [
-              new ObjectId("6828e0fa5b39026cc9569208"),
-              new ObjectId("6828db2e5b39026cc95691ca"),
+              new ObjectId("6846c641b2a889fa645ef28f"),
+              new ObjectId("6846c228b2a889fa645ef28d"),
             ],
           },
         })
