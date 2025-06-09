@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["https://machinestreets.com", "https://api.machinestreets.com"], // 👈 Allow only your frontend domain
+    origin: ["https://machinestreets.com", "https://api.machinestreets.com","http://192.168.1.9:5000"], // 👈 Allow only your frontend domain
     methods: ["GET", "POST"],
     credentials: true,
   },
