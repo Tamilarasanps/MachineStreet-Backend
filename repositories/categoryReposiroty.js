@@ -54,7 +54,7 @@ const CategoryRepository = {
         })),
       };
 
-      return { states: {states}, industries: industries };
+      return { states: states, industries: industries };
     } catch (error) {
       console.error("Error fetching industries:", error);
       throw error; // Rethrow the error to handle it where the function is called

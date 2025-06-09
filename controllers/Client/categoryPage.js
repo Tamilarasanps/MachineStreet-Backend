@@ -5,6 +5,7 @@ const categoryPage = async (req, res) => {
   try {
     const { industry, page } = req.params;
     const categories = await categoryService.getCategories(industry, page);
+    console.log(categories)
     res.status(200).json(categories);
   } catch (err) {
     console.log(err);
