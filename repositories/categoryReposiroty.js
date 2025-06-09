@@ -21,7 +21,7 @@ const CategoryRepository = {
           },
         })
         .toArray();
-
+        console.log('states :', states )
       // Step 1: Get all industries
       let industries = await Industry.find({}, "name").lean();
 
