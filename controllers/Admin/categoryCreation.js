@@ -228,6 +228,7 @@ router.get("/getCategory/:selectedData?/:fetchdata?", async (req, res) => {
   try {
     const { selectedData, fetchdata } = req.params;
     let response;
+  console.log("re",fetchdata)
 
     if (!selectedData) {
       // Get all industries
