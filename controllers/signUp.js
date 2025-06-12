@@ -82,7 +82,7 @@ const cacheStore = async (
     username,
     OTP: otp,
   };
-  myCache.set(mailOrphone + "otp", userOtp, 30);
+  myCache.set(mailOrphone + "otp", userOtp, 60);
   myCache.set(mailOrphone, userData, 300);
   return response;
 };

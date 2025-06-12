@@ -36,7 +36,7 @@ const { app, server } = require("./socket/server.js");
 
 //express setup
 
-const allowedOrigins = ["https://machinestreets.com","https://faceqrapp.netlify.app/"];
+const allowedOrigins = ["https://machinestreets.com","https://faceqrapp.netlify.app/","http://localhost:8081"];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) callback(null, true);

@@ -7,7 +7,6 @@ const {
 } = require("../models/CategoryModel");
 const machines = require("../models/productUpload");
 const mongoose = require("mongoose");
-const { ObjectId } = require("mongodb");
 
 const CategoryRepository = {
   getIndustries: async () => {
