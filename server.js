@@ -36,7 +36,7 @@ const { app, server } = require("./socket/server.js");
 
 //express setup
 
-const allowedOrigins = ["https://machinestreets.com","https://faceqrapp.netlify.app/","http://localhost:8081"];
+const allowedOrigins = ["https://machinestreets.com","https://faceqrapp.netlify.app/"];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) callback(null, true);
@@ -54,7 +54,7 @@ app.use(cors({
 //   standardHeaders: true,
 //   legacyHeaders: false, 
 // });
-
+console.log('rched ')
 
 app.use(helmet());
 app.use(express.json()); // Parses JSON request body
@@ -62,6 +62,7 @@ app.use(express.urlencoded({ extended: true })); // Parses form data
 app.use(bodyParser.json({ limit: "200mb" }));
 app.use(bodyParser.urlencoded({ limit: "200mb", extended: true }));
 app.use(cookieParser());
+app.set('trust proxy', true);
 // app.use(limiter); // Apply to all routes
 
 app.get("/api/reverse-geocode", async (req, res) => {

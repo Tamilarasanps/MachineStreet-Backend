@@ -5,9 +5,19 @@ const machineRepository = require("../repositories/machinerepository");
 
 const CategoryService = {
   getIndustries: async (limit) => {
-    const categories = await CategoryRepository.getIndustries(limit);
-    return categories;
+    try {
+      const industries = await CategoryRepository.getIndustries(limit);
+      return industries;
+    } catch (error) {
+      console.error(
+        `[getIndustries] Error fetching industries with limit ${limit}:`,
+        error
+      );
+
+      throw new Error("Unable to retrieve industry data at this time.");
+    }
   },
+
   getCategories: async (industry, page) => {
     try {
       if (!industry) {

@@ -10,6 +10,7 @@ const secureRoute = async (req, res, next) => {
 
     const retrivedToken = token.split(" ")[1]; // Extract the token
     const decoded = jwt.verify(retrivedToken, process.env.JWT_SECRET);
+    console.log(decoded)
 
     if (!decoded) {
       return res.status(401).json({ error: "Invalid Token" });

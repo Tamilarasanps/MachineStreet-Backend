@@ -4,8 +4,10 @@ const NodeCache = require("node-cache");
 const user = require("../models/userSIgnUp");
 const mobileOrEmailCheck = require("../middlewares/mobileOrEmailCheck");
 const bcrypt = require("bcryptjs");
-const getGeoCoords = require('../middlewares/geocoords')
-// const twilio = require("twilio");
+const getGeoCoords = require("../middlewares/geocoords");
+const twilio = require("twilio");
+const axios = require("axios");
+const { countries } = require("country-data");
 require("dotenv").config();
 
 const router = express.Router();
@@ -23,27 +25,33 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// const mobileClient = twilio(
-//   process.env.TWILIO_ACCOUNT_SID,
-//   process.env.TWILIO_AUTH_TOKEN
-// );
+const mobileClient = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
-// const sendMobileOtp = async (phone, otp) => {
-//   console.log("process.env.TWILIO_PHONE_NUMBER :", process.env.TWILIO_PHONE_NUMBER)
-//   return mobileClient.messages.create({
-//     body: `Your OTP is: ${otp}`,
-//     to:"+916363832628",
-//     from:  "+1 276 533 8601",
-//   });
-// };
+const sendMobileOtp = async (phone, otp, ip) => {
+  const url = `https://api.ipinfo.io/lite/${ip}?token=${process.env.IPINFO_AUTH_TOKEN}`;
+
+  const response = await axios.get(url);
+  const countryCode = response.data.country_code; // e.g., 'IN'
+
+  const dialCode = countries[countryCode].countryCallingCodes[0]; // '+91'
+
+  return mobileClient.messages.create({
+    body: `🔐 Your verification code is ${otp}. It is valid for the next 1 minutes. Do not share this code with anyone.`,
+    to: `${dialCode}${phone}`,
+    from: process.env.TWILIO_PHONE_NUMBER,
+  });
+};
 
 // Utility to send OTP via Email
 const sendEmailOTP = async (email, otp) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: "Your OTP Code",
-    text: `Your OTP code is: ${otp}`,
+    subject: "Your One-Time Verification Code",
+    text: `Hello,\n\nYour one-time verification code is: ${otp}\n\nThis code is valid for the next 1 minutes.\n\nIf you did not request this code, it may mean someone else is trying to access your account. Please secure your account or contact support if this wasn't you.\n\nStay safe,\n\nMachineStreets Team`,
   };
 
   try {
@@ -62,15 +70,16 @@ const cacheStore = async (
   mailOrphone,
   role,
   mechanicDetails,
-  otp
+  otp,
+  ip
 ) => {
-
   let response;
   if (recipient === "email") {
     response = await sendEmailOTP(mailOrphone, otp);
   } else {
-    // response = await sendMobileOtp(mailOrphone, otp);
+    response = await sendMobileOtp(mailOrphone, otp, ip);
   }
+
   const userData = {
     username,
     [recipient]: mailOrphone,
@@ -78,6 +87,7 @@ const cacheStore = async (
     role: role,
     mechanicDetails: mechanicDetails,
   };
+  console.log("otp :", otp);
   const userOtp = {
     username,
     OTP: otp,
@@ -104,7 +114,6 @@ const getCache = (req, res, next) => {
   // const cachedData = myCache.get(mailOrphone+"otp");
   const userData = myCache.get(mailOrphone);
   // console.log("cached :", cachedData);
-  console.log("userData :", userData);
 
   if (!myCache.has(mailOrphone)) {
     return res.status(404).json({ message: "Session has expired." });
@@ -120,7 +129,7 @@ const getCache = (req, res, next) => {
 // Routes
 router.post("/", mobileOrEmailCheck, async (req, res) => {
   const { mailOrphone, username, role, mechanicDetails } = req.body;
-  console.log(req.body);
+  const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.ip;
 
   const existingUser = await user.findOne({ [req.recipient]: mailOrphone });
   if (existingUser) {
@@ -137,10 +146,16 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
       mailOrphone,
       role,
       mechanicDetails,
-      otp
+      otp,
+      ip
     );
 
-    if (response.success) {
+    if (
+      response.status === "sent" ||
+      response.status === "queued" ||
+      response.status === "delivered" ||
+      response.success
+    ) {
       return res.status(200).json({
         message: response.message,
         [req.recipient]: mailOrphone,
@@ -300,10 +315,7 @@ router.post("/register", async (req, res) => {
       newUserData.bio = cachedUser.mechanicDetails.bio;
       newUserData.geoCoords = {
         type: "Point",
-        coordinates: [
-          Number(coords.longitude),
-          Number(coords.latitude),
-        ],
+        coordinates: [Number(coords.longitude), Number(coords.latitude)],
       };
       newUserData.country = location.country;
       newUserData.region = location.region;

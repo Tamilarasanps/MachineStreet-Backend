@@ -19,7 +19,6 @@ router.get("/", async (req, res) => {
     // ✅ Verify token and get searchTerms
 
     if (token) {
-      console.log(token);
       try {
         const retrivedToken = token.split(" ")[1]; // Extract the token
         const decoded = jwt.verify(retrivedToken, process.env.JWT_SECRET);
