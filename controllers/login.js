@@ -12,10 +12,13 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
   try {
     const { mailOrphone, password } = req.body;
 
+    console.log('req.recipient :', req.recipient)
+
     // Search for user by email/mobile
     const user = await usermodel.collection.findOne({
       [req.recipient]: mailOrphone,
     });
+
 
     // Check if user exists and password matches
     if (user) {
