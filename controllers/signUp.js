@@ -231,12 +231,12 @@ router.post("/resendotp", mobileOrEmailCheck, getCache, async (req, res) => {
     const response = await cacheStore(
       req.user.username,
       req.recipient,
-      req.dialCode,
+      req.user.dialCode,
       mailOrphone,
       req.user.role,
       req.user.mechanicDetails,
       newOtp,
-      req.ip
+      req.user.ip
     );
 
     if (response.success) {
