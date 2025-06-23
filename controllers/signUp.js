@@ -247,7 +247,6 @@ router.post("/resendotp", mobileOrEmailCheck, getCache, async (req, res) => {
         OTP: newOtp,
       });
     } else {
-      console.log(error);
       throw new Error(response.error);
     }
   } catch (err) {
