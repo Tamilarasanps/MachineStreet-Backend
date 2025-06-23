@@ -30,16 +30,7 @@ const mobileClient = twilio(
   process.env.TWILIO_AUTH_TOKEN
 );
 
-const sendMobileOtp = async (phone, otp, ip) => {
-  const url = `https://api.ipinfo.io/lite/${ip}?token=${process.env.IPINFO_AUTH_TOKEN}`;
-  console.log("ip :", ip);
-
-  const response = await axios.get(url);
-  const countryCode = response.data.country_code; // e.g., 'IN'
-  console.log("countryCode :", countryCode);
-  const dialCode = countries[countryCode].countryCallingCodes[0]; // '+91'
-  console.log("dialCode :", dialCode);
-
+const sendMobileOtp = async (phone, otp, dialCode) => {
   return mobileClient.messages.create({
     body: `🔐 Your verification code is ${otp}. It is valid for the next 1 minutes. Do not share this code with anyone.`,
     to: `${dialCode}${phone}`,
@@ -69,6 +60,7 @@ const sendEmailOTP = async (email, otp) => {
 const cacheStore = async (
   username,
   recipient,
+  dialCode,
   mailOrphone,
   role,
   mechanicDetails,
@@ -79,11 +71,13 @@ const cacheStore = async (
   if (recipient === "email") {
     response = await sendEmailOTP(mailOrphone, otp);
   } else {
-    response = await sendMobileOtp(mailOrphone, otp, ip);
+    response = await sendMobileOtp(mailOrphone, otp, ip, dialCode);
   }
 
   const userData = {
     username,
+    dialCode: dialCode,
+    ip:ip,
     [recipient]: mailOrphone,
     OTP: otp,
     role: role,
@@ -133,7 +127,22 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
   const { mailOrphone, username, role, mechanicDetails } = req.body;
   const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.ip;
 
-  const existingUser = await user.findOne({ [req.recipient]: mailOrphone });
+  const url = `https://api.ipinfo.io/lite/${ip}?token=${process.env.IPINFO_AUTH_TOKEN}`;
+
+  let dialCode = "";
+
+  if (req.recipient === "mobile") {
+    const response = await axios.get(url);
+    const countryCode = response.data.country_code; // e.g., 'IN'
+    console.log("countryCode :", countryCode);
+    dialCode = countries[countryCode].countryCallingCodes[0]; // '+91'
+    console.log("dialCode :", dialCode);
+  }
+
+  const existingUser = await user.findOne({
+    $or: [{ email: mailOrphone }, { "mobile.number": mailOrphone }],
+  });
+
   if (existingUser) {
     return res
       .status(400)
@@ -145,6 +154,7 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
     const response = await cacheStore(
       username,
       req.recipient,
+      dialCode,
       mailOrphone,
       role,
       mechanicDetails,
@@ -162,7 +172,6 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
         message: response.message,
         [req.recipient]: mailOrphone,
         username,
-        OTP: otp,
       });
     } else {
       throw new Error(response.error);
@@ -222,10 +231,12 @@ router.post("/resendotp", mobileOrEmailCheck, getCache, async (req, res) => {
     const response = await cacheStore(
       req.user.username,
       req.recipient,
+      req.dialCode,
       mailOrphone,
       req.user.role,
       req.user.mechanicDetails,
-      newOtp
+      newOtp,
+      req.ip
     );
 
     if (response.success) {
@@ -283,8 +294,13 @@ router.post("/register", async (req, res) => {
     };
 
     if (cachedUser.email) newUserData.email = cachedUser.email;
-    if (cachedUser.mobile) newUserData.mobile = cachedUser.mobile;
-    
+    if (cachedUser.mobile) {
+      newUserData.mobile = {
+        countryCode: cachedUser.dialCode,
+        number: cachedUser.mobile,
+      };
+    }
+
     // Check if the role is "mechanic" and add additional fields
     if (cachedUser.role === "mechanic") {
       const location = JSON.parse(cachedUser.mechanicDetails.location);
