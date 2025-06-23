@@ -29,14 +29,21 @@ const mobileClient = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
-
 const sendMobileOtp = async (phone, otp, dialCode) => {
-  return mobileClient.messages.create({
-    body: `🔐 Your verification code is ${otp}. It is valid for the next 1 minutes. Do not share this code with anyone.`,
-    to: `${dialCode}${phone}`,
-    from: process.env.TWILIO_PHONE_NUMBER,
-  });
+  try {
+    // Send SMS
+    await mobileClient.messages.create({
+      body: `🔐 Your verification code is ${otp}. It is valid for the next 1 minutes. Do not share this code with anyone.`,
+      to: `${dialCode}${phone}`,
+      from: process.env.TWILIO_PHONE_NUMBER,
+    });
+
+    return { success: true, message: "OTP sent to mobile and email successfully" };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
 };
+
 
 // Utility to send OTP via Email
 const sendEmailOTP = async (email, otp) => {
@@ -239,7 +246,10 @@ router.post("/resendotp", mobileOrEmailCheck, getCache, async (req, res) => {
       req.user.ip
     );
 
-    if (response.success) {
+    if ( response.status === "sent" ||
+      response.status === "queued" ||
+      response.status === "delivered" ||
+      response.success) {
       return res.status(200).json({
         message: response.message,
         [req.recipient]: mailOrphone,
