@@ -32,11 +32,14 @@ const mobileClient = twilio(
 
 const sendMobileOtp = async (phone, otp, ip) => {
   const url = `https://api.ipinfo.io/lite/${ip}?token=${process.env.IPINFO_AUTH_TOKEN}`;
+  conosle.log('ip :', ip)
 
   const response = await axios.get(url);
   const countryCode = response.data.country_code; // e.g., 'IN'
-
+  console.log('countryCode :', countryCode)
   const dialCode = countries[countryCode].countryCallingCodes[0]; // '+91'
+  console.log('dialCode :', dialCode)
+
 
   return mobileClient.messages.create({
     body: `🔐 Your verification code is ${otp}. It is valid for the next 1 minutes. Do not share this code with anyone.`,
