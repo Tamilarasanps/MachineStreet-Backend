@@ -71,7 +71,7 @@ const cacheStore = async (
   if (recipient === "email") {
     response = await sendEmailOTP(mailOrphone, otp);
   } else {
-    response = await sendMobileOtp(mailOrphone, otp, ip, dialCode);
+    response = await sendMobileOtp(mailOrphone, otp, dialCode);
   }
 
   const userData = {
@@ -146,7 +146,7 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
   if (existingUser) {
     return res
       .status(400)
-      .json({ message: "Email already exists. Please log in." });
+      .json({ message: `${req.recipient} already exists. Please log in.` });
   }
 
   try {
