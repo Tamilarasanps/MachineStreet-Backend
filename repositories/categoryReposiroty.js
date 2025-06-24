@@ -12,19 +12,16 @@ const CategoryRepository = {
   getIndustries: async () => {
     try {
       const db = mongoose.connection.db;
-      console.log(db)
+      console.log(db);
       const states = await db
         .collection("states")
         .find({
           _id: {
-            $in: [
-              new mongoose.Types.ObjectId("6828db2e5b39026cc95691ca"),
-              new mongoose.Types.ObjectId("6828e0fa5b39026cc9569208"),
-            ],
+            $in: ["6846c228b2a889fa645ef28d", "6846c641b2a889fa645ef28f"],
           },
         })
         .toArray();
-      console.log(states);
+
       // Step 1: Get all industries
       let industries = await Industry.find({}, "name").lean();
 

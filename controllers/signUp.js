@@ -38,12 +38,11 @@ const sendMobileOtp = async (phone, otp, dialCode) => {
       from: process.env.TWILIO_PHONE_NUMBER,
     });
 
-    return { success: true, message: "OTP sent to mobile and email successfully" };
+    return { success: true, message: "OTP sent to mobile successfully" };
   } catch (err) {
     return { success: false, error: err.message };
   }
 };
-
 
 // Utility to send OTP via Email
 const sendEmailOTP = async (email, otp) => {
@@ -84,7 +83,7 @@ const cacheStore = async (
   const userData = {
     username,
     dialCode: dialCode,
-    ip:ip,
+    ip: ip,
     [recipient]: mailOrphone,
     OTP: otp,
     role: role,
@@ -246,10 +245,12 @@ router.post("/resendotp", mobileOrEmailCheck, getCache, async (req, res) => {
       req.user.ip
     );
 
-    if ( response.status === "sent" ||
+    if (
+      response.status === "sent" ||
       response.status === "queued" ||
       response.status === "delivered" ||
-      response.success) {
+      response.success
+    ) {
       return res.status(200).json({
         message: response.message,
         [req.recipient]: mailOrphone,
