@@ -13,15 +13,26 @@ const CategoryRepository = {
     try {
       const db = mongoose.connection.db;
       console.log(db);
+      // const states = await db
+      //   .collection("states")
+      //   .find({
+      //     _id: {
+      //       $in: ["6846c228b2a889fa645ef28d", "6846c641b2a889fa645ef28f"],
+      //     },
+      //   })
+      //   .toArray();
+
       const states = await db
         .collection("states")
         .find({
           _id: {
-            $in: ["6846c228b2a889fa645ef28d", "6846c641b2a889fa645ef28f"],
+            $in: [
+              new mongoose.Types.ObjectId("6828db2e5b39026cc95691ca"),
+              new mongoose.Types.ObjectId("6828e0fa5b39026cc9569208"),
+            ],
           },
         })
         .toArray();
-
       // Step 1: Get all industries
       let industries = await Industry.find({}, "name").lean();
 
