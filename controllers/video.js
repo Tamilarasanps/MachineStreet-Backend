@@ -20,7 +20,7 @@ console.log('reached video')
     });
 
     res.set("Content-Type", file.contentType);
-    res.setHeader("Access-Control-Allow-Origin", "*"); // or restrict to your frontend
+    res.setHeader("Access-Control-Allow-Origin", "https://machinestreets.com"); // or restrict to your frontend
 
     const downloadStream = bucket.openDownloadStream(fileId);
     downloadStream.pipe(res);
