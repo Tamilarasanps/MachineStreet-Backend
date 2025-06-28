@@ -61,6 +61,8 @@ const deletemedia = async (req, res) => {
   }
 };
 const postmedia = async (req, res) => {
+  console.log("Origin Header:", req.get("Origin"));
+
   try {
     if (!req.files) {
       return res.status(300).json({ message: "No images or videos uploaded" });

@@ -44,6 +44,8 @@ app.use(cors({
   },
   credentials: true,
 }));
+app.options("*", cors()); // handles preflight requests
+
 
 // app.use(cors({ origin: '*' }));
 // const rateLimit = require("express-rate-limit");
