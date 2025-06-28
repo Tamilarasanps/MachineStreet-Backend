@@ -229,6 +229,7 @@ const mechanicRepository = {
   },
 
   postMedia: async (media, bio, userId) => {
+    console.log('repo reached')
     try {
       // Step 1: Create a new Post
       const newPost = new Post({

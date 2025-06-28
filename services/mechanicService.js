@@ -125,6 +125,7 @@ const mechanicService = {
   },
 
   postmedia: async (media, bio, userId) => {
+    console.log('reached service')
     try {
       const result = mechanicRepository.postMedia(media, bio, userId);
       return result;
