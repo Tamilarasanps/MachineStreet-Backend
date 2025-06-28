@@ -3,10 +3,9 @@ const mongoose = require("mongoose");
 const ObjectId = mongoose.Types.ObjectId;
 
 const video = async (req, res) => {
-
   try {
     const fileId = new ObjectId(req.params.id);
-
+console.log('reached video')
     const db = mongoose.connection.db;
 
     const file = await db.collection("videos.files").findOne({ _id: fileId });
@@ -21,6 +20,7 @@ const video = async (req, res) => {
     });
 
     res.set("Content-Type", file.contentType);
+    res.setHeader("Access-Control-Allow-Origin", "*"); // or restrict to your frontend
 
     const downloadStream = bucket.openDownloadStream(fileId);
     downloadStream.pipe(res);
