@@ -3,40 +3,39 @@ const { GridFsStorage } = require("multer-gridfs-storage");
 const crypto = require("crypto");
 require("dotenv").config();
 
+// ✅ GridFS storage with 1MB chunk
 const storage = new GridFsStorage({
   url: process.env.MONGO_URI,
-  cache: true,
-  disableMD5: false,
-
+  options: { useNewUrlParser: true, useUnifiedTopology: true },
   file: (req, file) => {
     return new Promise((resolve, reject) => {
       crypto.randomBytes(16, (err, buf) => {
-        if (err) {
-          return reject(err);
-        }
-        const filename = buf.toString("hex") + file.originalname;
+        if (err) return reject(err);
+
+        const filename = buf.toString("hex") + "-" + file.originalname;
         const bucketName = file.mimetype.startsWith("image/")
           ? "images"
-          : "videos"; // Separate bucket names
+          : "videos";
 
         const fileInfo = {
-          filename: filename,
-          bucketName: bucketName,
-          //   metadata: { uploadedBy: req.userId },
+          filename,
+          bucketName,
+          chunkSizeBytes: 1024 * 1024, // ✅ 1MB
         };
+
         resolve(fileInfo);
       });
     });
   },
 });
 
+// ✅ Multer setup with 250MB limit
 const upload = multer({
   storage,
   limits: {
-    fileSize: 20 * 1024 * 1024, // 100MB limit for files
+    fileSize: 250 * 1024 * 1024, // 250MB
   },
   fileFilter: (req, file, callback) => {
-    console.log("file :", file);
     const allowedTypes = [
       "image/jpeg",
       "image/jpg",
@@ -53,24 +52,29 @@ const upload = multer({
     }
   },
 }).fields([
-  { name: "images", maxCount: 10 }, // Adjust maxCount as needed
+  { name: "images", maxCount: 10 },
   { name: "videos", maxCount: 2 },
 ]);
 
+// ✅ Middleware to upload and pass IDs
 const uploadFiles = (req, res, next) => {
-  //multer call
   upload(req, res, (err) => {
     if (err) {
-      console.log(err);
+      console.error("Upload error:", err);
       return res.status(500).json({
         message: err.message || "File upload failed",
         error: err.message,
       });
     }
 
-    req.images = req.files?.images || [];
-    req.videos = req.files?.videos || [];
+    const images = req.files?.images || [];
+    const videos = req.files?.videos || [];
 
+    // ✅ Attach only the file IDs for use in next middleware/controller
+    req.imageIds = images.map((f) => f.id);
+    req.videoIds = videos.map((f) => f.id);
+
+    // ✅ Call next to continue request
     next();
   });
 };
