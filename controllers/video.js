@@ -19,8 +19,8 @@ console.log('reached video')
       bucketName: "videos",
     });
 
-    res.set("Content-Type", file.contentType);
-    res.setHeader("Access-Control-Allow-Origin", "*"); // or restrict to your frontend
+    // res.set("Content-Type", file.contentType);
+    // res.setHeader("Access-Control-Allow-Origin", "*"); // or restrict to your frontend
 
     const downloadStream = bucket.openDownloadStream(fileId);
     downloadStream.pipe(res);
