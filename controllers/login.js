@@ -28,11 +28,13 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
           { id: user._id, email: user.email || user.phone },
           JWT_SECRET
         );
+        console.log('ksdv kbsdkvb :',user._id)
         res.status(200).json({
           message: "Logged In Successfully",
           token, // Return the token
           role: user.role,
           qr: user.qr,
+          userId : user._id.toString()
         });
       } else {
         console.log("Invalid Password");
