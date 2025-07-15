@@ -370,4 +370,91 @@ router.post("/register", async (req, res) => {
   }
 });
 
+router.post("/forgotPassword", mobileOrEmailCheck, async (req, res) => {
+  try {
+    const { mailOrphone } = req.body;
+    const recipient = req.recipient; // 'email' or 'mobile'
+
+    const User = await user.findOne({ [recipient]: mailOrphone });
+
+    if (!User) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const username = User.username || null;
+    const role = User.role || null;
+    const mechanicDetails = User.mechanicDetails || null;
+    const dialCode = User.dialCode || null;
+    const ip = req.ip || null;
+
+    const otp = generateOTP();
+
+    const response = await cacheStore(
+      username,
+      req.recipient,
+      dialCode,
+      mailOrphone,
+      role,
+      mechanicDetails,
+      otp,
+      ip
+    );
+
+    if (
+      response.status === "sent" ||
+      response.status === "queued" ||
+      response.status === "delivered" ||
+      response.success
+    ) {
+      return res.status(200).json({
+        message: response.message,
+        [recipient]: mailOrphone,
+        username,
+      });
+    } else {
+      throw new Error(response.error || "OTP sending failed.");
+    }
+  } catch (err) {
+    console.error("Error in sending OTP:", err);
+    return res.status(500).json({
+      message: "Error in sending OTP",
+      error: err.message,
+    });
+  }
+});
+
+router.post("/resetPassword", async (req, res) => {
+  try {
+    const { mailOrphone, password } = req.body;
+
+    if (!mailOrphone || !password) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+
+    if (typeof password !== "string") {
+      return res.status(400).json({ message: "Invalid password format" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const userProfile = await user.findOneAndUpdate(
+      {
+        $or: [{ email: mailOrphone }, { mobile: mailOrphone }],
+      },
+      { password: hashedPassword },
+      { new: true, runValidators: true }
+    );
+
+    if (!userProfile) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error("Error updating password:", err.message);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+
 module.exports = router;

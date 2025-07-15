@@ -26,15 +26,15 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
         // Generate JWT Token
         const token = jwt.sign(
           { id: user._id, email: user.email || user.phone },
-          JWT_SECRET
+          JWT_SECRET,
+          { expiresIn: "90d" } // Valid for 90 days = 3 months
         );
-        console.log('ksdv kbsdkvb :',user._id)
         res.status(200).json({
           message: "Logged In Successfully",
           token, // Return the token
           role: user.role,
           qr: user.qr,
-          userId : user._id.toString()
+          userId: user._id.toString(),
         });
       } else {
         console.log("Invalid Password");
