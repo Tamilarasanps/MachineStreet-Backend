@@ -28,7 +28,7 @@ const video = require("./routes/video.js");
 const mechanicRoutes = require("./routes/mechanicRoutes");
 const search = require("./controllers/Client/SearchController.js");
 const supportTicket = require("./controllers/Client/supportTicket.js");
-const geo = require('./middlewares/geocoords.js')
+const geo = require("./middlewares/geocoords.js");
 const axios = require("axios");
 
 const messageRoute = require("./routes/messageRoute.js");
@@ -36,30 +36,35 @@ const { app, server } = require("./socket/server.js");
 
 //express setup
 
-const allowedOrigins = ["https://machinestreets.com","https://faceqrapp.netlify.app","https://api.machinestreets.com",
-  // "http://192.168.1.8:5000","http://localhost:8081",
+const allowedOrigins = [
+  "https://machinestreets.com",
+  "https://faceqrapp.netlify.app",
+  "https://api.machinestreets.com",
+  "http://192.168.1.9:5000",
+  "http://192.168.250.41:5000",
+  "http://localhost:8081",
 ];
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) callback(null, true);
-    else callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+      else callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 app.options("*", cors()); // handles preflight requests
-
 
 // app.use(cors({ origin: '*' }));
 // const rateLimit = require("express-rate-limit");
 
 // const limiter = rateLimit({
 //   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 100, 
+//   max: 100,
 //   message: "Too many requests from this IP, please try again later.",
 //   standardHeaders: true,
-//   legacyHeaders: false, 
+//   legacyHeaders: false,
 // });
-
 
 app.use(helmet());
 app.use(express.json()); // Parses JSON request body
@@ -116,7 +121,7 @@ app.use("/mechanicList", mechanicRoutes);
 app.use("/searchResult", search);
 app.use("/supportTicket", supportTicket);
 app.use("/landingPage", landinPage);
-app.use("/geocoords",geo)
+app.use("/geocoords", geo);
 
 const PORT = process.env.PORT || 5000;
 
