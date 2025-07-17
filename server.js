@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 
-const cors = require("cors");
+// const cors = require("cors");
 
 require("dotenv").config();
 
@@ -36,24 +36,18 @@ const { app, server } = require("./socket/server.js");
 
 //express setup
 
-const allowedOrigins = [
-  "https://machinestreets.com",
-  "https://faceqrapp.netlify.app",
-  "https://api.machinestreets.com",
-  "http://192.168.1.9:5000",
-  "http://192.168.250.41:5000",
-  "http://localhost:8081",
-];
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
-      else callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  })
-);
-app.options("*", cors()); // handles preflight requests
+// const allowedOrigins = ["https://machinestreets.com","https://faceqrapp.netlify.app","https://api.machinestreets.com",
+//   "http://192.168.1.8:5000","http://localhost:8081","http://192.168.1.9:5000"
+// ];
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+//     else callback(new Error("Not allowed by CORS"));
+//   },
+//   credentials: true,
+// }));
+// app.options("*", cors()); // handles preflight requests
+
 
 // app.use(cors({ origin: '*' }));
 // const rateLimit = require("express-rate-limit");
