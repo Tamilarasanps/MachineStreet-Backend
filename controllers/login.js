@@ -27,8 +27,9 @@ router.post("/", mobileOrEmailCheck, async (req, res) => {
         const token = jwt.sign(
           { id: user._id, email: user.email || user.phone },
           JWT_SECRET,
-          { expiresIn: "90d" } // Valid for 90 days = 3 months
+          { expiresIn: "2m" } // 2 minutes
         );
+        
         res.status(200).json({
           message: "Logged In Successfully",
           token, // Return the token

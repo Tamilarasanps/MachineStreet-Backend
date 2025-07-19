@@ -44,10 +44,8 @@ router.get("/search", async (req, res) => {
 
     // Mechanic page logic: filter by user.username or organization and role must be "mechanic"
     if (page === "mechanic") {
-      // Fetch all users with role = "mechanic"
       const mechanicUsers = await user.find({ role: "mechanic" });
 
-      // Set up Fuse.js for fuzzy matching on username and organization
       const fuse = new Fuse(mechanicUsers, {
         keys: [
           "username",
@@ -65,21 +63,13 @@ router.get("/search", async (req, res) => {
         findAllMatches: true,
       });
 
-      // Perform fuzzy search
       const terms = userInput.split(" ");
-
       const results = terms.flatMap((term) => fuse.search(term));
-      // const results = fuse.search(normalize(userInput));
-      console.log(results);
-      const matchedUsers = results.map((r) => r.item).slice(0, 10); // Limit to top 10
-      console.log(matchedUsers.length);
+      const matchedUsers = results.map((r) => r.item).slice(0, 10);
 
-      if (matchedUsers.length === 0) {
-        return res.status(404).json({ error: "No matching mechanics found" });
-      }
-
-      return res.json({ users: matchedUsers });
+      return res.json({ users: matchedUsers }); // ✅ Always return, even if 0
     }
+
 
     // Product page logic: search based on all available data
     const fuse = new Fuse(allData, {
@@ -102,3 +92,14 @@ router.get("/search", async (req, res) => {
 });
 
 module.exports = router;
+404
+
+
+
+
+
+
+
+
+
+
