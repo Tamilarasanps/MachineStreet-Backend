@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 
-// const cors = require("cors");
+const cors = require("cors");
 
 require("dotenv").config();
 
@@ -28,7 +28,7 @@ const video = require("./routes/video.js");
 const mechanicRoutes = require("./routes/mechanicRoutes");
 const search = require("./controllers/Client/SearchController.js");
 const supportTicket = require("./controllers/Client/supportTicket.js");
-const geo = require('./middlewares/geocoords.js')
+const geo = require("./middlewares/geocoords.js");
 const axios = require("axios");
 
 const messageRoute = require("./routes/messageRoute.js");
@@ -49,17 +49,16 @@ const { app, server } = require("./socket/server.js");
 // app.options("*", cors()); // handles preflight requests
 
 
-// app.use(cors({ origin: '*' }));
+app.use(cors({ origin: '*' }));
 // const rateLimit = require("express-rate-limit");
 
 // const limiter = rateLimit({
 //   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 100, 
+//   max: 100,
 //   message: "Too many requests from this IP, please try again later.",
 //   standardHeaders: true,
-//   legacyHeaders: false, 
+//   legacyHeaders: false,
 // });
-
 
 app.use(helmet());
 app.use(express.json()); // Parses JSON request body
@@ -116,7 +115,7 @@ app.use("/mechanicList", mechanicRoutes);
 app.use("/searchResult", search);
 app.use("/supportTicket", supportTicket);
 app.use("/landingPage", landinPage);
-app.use("/geocoords",geo)
+app.use("/geocoords", geo);
 
 const PORT = process.env.PORT || 5000;
 

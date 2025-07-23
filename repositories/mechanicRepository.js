@@ -67,14 +67,12 @@ const mechanicRepository = {
 
       const updatedReviews = await Promise.all(
         reviewsData.reviews
-          .filter((review) => review.user) // only filter null users
+          .filter((review) => review?.user !== null)
           .map(async (review) => {
-            const updatedProfileImage = review.user.profileImage
-              ? await mechanicRepository.getProductFiles(
+            const updatedProfileImage =
+              await mechanicRepository.getProductFiles(
                 review.user.profileImage
-              )
-              : null;
-
+              );
             return {
               ...review,
               user: {
@@ -84,6 +82,8 @@ const mechanicRepository = {
             };
           })
       );
+
+      console.log("updatedReviews :", updatedReviews);
 
       return updatedReviews;
     } catch (err) {
