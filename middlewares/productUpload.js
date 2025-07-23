@@ -8,6 +8,7 @@ const storage = new GridFsStorage({
   url: process.env.MONGO_URI,
   options: { useNewUrlParser: true, useUnifiedTopology: true },
   file: (req, file) => {
+    console.log('file :', file)
     return new Promise((resolve, reject) => {
       crypto.randomBytes(16, (err, buf) => {
         if (err) return reject(err);
@@ -36,6 +37,8 @@ const upload = multer({
     fileSize: 250 * 1024 * 1024, // 250MB
   },
   fileFilter: (req, file, callback) => {
+  console.log('request reached :', file)
+
     const allowedTypes = [
       "image/jpeg",
       "image/jpg",
@@ -59,6 +62,7 @@ const upload = multer({
 // ✅ Middleware to upload and pass IDs
 const uploadFiles = (req, res, next) => {
   upload(req, res, (err) => {
+    // console.log(req)
     if (err) {
       console.error("Upload error:", err);
       return res.status(500).json({
@@ -73,6 +77,8 @@ const uploadFiles = (req, res, next) => {
     // ✅ Attach only the file IDs for use in next middleware/controller
     req.imageIds = images.map((f) => f.id);
     req.videoIds = videos.map((f) => f.id);
+
+    console.log('images :', images)
 
     // ✅ Call next to continue request
     next();

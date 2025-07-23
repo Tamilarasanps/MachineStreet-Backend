@@ -107,6 +107,7 @@ const editProfile = async (req, res) => {
   try {
     const userId = req.user._id.toString();
     const userData = req.body;
+    console.log('userData :', userData)
     const result = await mechanicService.editProfile(userData, userId);
     res.status(200).json({ result });
   } catch (err) {

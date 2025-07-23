@@ -10,7 +10,7 @@ const db = mongoose.connection;
 
 const mechanicRepository = {
   getMechanics: async (page, limit, userId) => {
-    console.log(page, limit, userId)
+    console.log(page, limit, userId);
     try {
       const skip = (page - 1) * limit;
 
@@ -66,18 +66,23 @@ const mechanicRepository = {
         .lean();
 
       const updatedReviews = await Promise.all(
-        reviewsData.reviews.map(async (review) => {
-          const updatedProfileImage = await mechanicRepository.getProductFiles(
-            review.user.profileImage
-          );
-          return {
-            ...review,
-            user: {
-              ...review.user,
-              profileImage: updatedProfileImage,
-            },
-          };
-        })
+        reviewsData.reviews
+          .filter((review) => review.user) // only filter null users
+          .map(async (review) => {
+            const updatedProfileImage = review.user.profileImage
+              ? await mechanicRepository.getProductFiles(
+                review.user.profileImage
+              )
+              : null;
+
+            return {
+              ...review,
+              user: {
+                ...review.user,
+                profileImage: updatedProfileImage,
+              },
+            };
+          })
       );
 
       return updatedReviews;
@@ -229,7 +234,7 @@ const mechanicRepository = {
   },
 
   postMedia: async (media, bio, userId) => {
-    console.log('repo reached')
+    console.log("repo reached");
     try {
       // Step 1: Create a new Post
       const newPost = new Post({
@@ -266,12 +271,31 @@ const mechanicRepository = {
   },
   editProfile: async (userData, userId) => {
     try {
-      // Prevent changing the _id field
+      // Prevent _id overwrite
       if ("_id" in userData) {
         delete userData._id;
       }
 
-      const updatedProfile = await User.findByIdAndUpdate(userId, userData, {
+      // Prepare mapped fields
+      const updatedFields = {
+        organization: userData.organization,
+        industry: userData.industry,
+        services: userData.services,
+        subcategory: userData.subCategories, // renamed key
+        geoCoords: {
+          type: "Point",
+          coordinates: [
+            userData.location.coords.longitude,
+            userData.location.coords.latitude,
+          ],
+        },
+        country: userData.location.country,
+        region: userData.location.region,
+        district: userData.location.district,
+        contact: userData.contact,
+      };
+
+      const updatedProfile = await User.findByIdAndUpdate(userId, updatedFields, {
         new: true,
       });
 
@@ -322,7 +346,6 @@ const mechanicRepository = {
         // Step 5: Add the review ID to the mechanic's reviews array
         mechanic.reviews.push(savedReview._id);
         await mechanic.save();
-
       } else {
         console.log("User is not a mechanic. Review not linked.");
       }
@@ -377,7 +400,7 @@ const mechanicRepository = {
         },
         { new: true }
       );
-    
+
       // Emit new comment with populated user data
       io.to(postId).emit("comments-updated", {
         comment: {
@@ -448,7 +471,6 @@ const mechanicRepository = {
       throw new Error(err.message);
     }
   },
-
 };
 
 module.exports = mechanicRepository;

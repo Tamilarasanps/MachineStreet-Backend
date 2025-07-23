@@ -33,6 +33,12 @@ const CategoryRepository = {
           },
         })
         .toArray();
+
+      // Sort the `states` array inside the first document
+      if (states[0]?.states) {
+        states[0].states.sort((a, b) => a.localeCompare(b));
+      }
+
       // Step 1: Get all industries
       let industries = await Industry.find({}, "name").lean();
 

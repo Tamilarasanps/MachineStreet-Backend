@@ -36,6 +36,8 @@ const updateProfileImage = async (req, res) => {
     const images = req.files.images
       ? req.files.images.map((image) => image.id)
       : [];
+      console.log('imagetype :', imagetype)
+      console.log('image :', images[0])
     const userProfileImage = await profileRepository.updateProfileImage(userId,images[0].toString(),imagetype);
     res.status(200).json({message : "Profile picture Succesfully updated",userProfileImage});
   } catch (err) {
