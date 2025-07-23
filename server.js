@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 
-const cors = require("cors");
+// const cors = require("cors");
 
 require("dotenv").config();
 
@@ -49,7 +49,7 @@ const { app, server } = require("./socket/server.js");
 // app.options("*", cors()); // handles preflight requests
 
 
-app.use(cors({ origin: '*' }));
+// app.use(cors({ origin: '*' }));
 // const rateLimit = require("express-rate-limit");
 
 // const limiter = rateLimit({
@@ -61,8 +61,8 @@ app.use(cors({ origin: '*' }));
 // });
 
 app.use(helmet());
-app.use(express.json()); // Parses JSON request body
-app.use(express.urlencoded({ extended: true })); // Parses form data
+// app.use(express.json()); // Parses JSON request body
+// app.use(express.urlencoded({ extended: true })); // Parses form data
 app.use(bodyParser.json({ limit: "200mb" }));
 app.use(bodyParser.urlencoded({ limit: "200mb", extended: true }));
 app.use(cookieParser());
