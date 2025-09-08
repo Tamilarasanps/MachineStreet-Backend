@@ -1,0 +1,20 @@
+const mongoose = require('mongoose')
+require('dotenv').config({ path: './utils/.env' });
+
+const dbConnect = async () => {
+    if (!process.env.Mongo_URI) {
+        throw new Error("Mongo_URI is not defined in environment variables.");
+    }
+    try {
+        await mongoose.connect(
+            process.env.Mongo_URI
+        )
+        console.log("MongoDB connected successfully!");
+    }
+    catch (err) {
+        console.log(err)
+        throw err;
+    }
+}
+
+module.exports = dbConnect;
