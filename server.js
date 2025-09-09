@@ -15,7 +15,7 @@ const apiRoutes = require('./routes/apiRoutes.js')
 // const app = express();
 
 app.use(cors({
-    origin: ["http://localhost:5000","http://localhost:8081","http://localhost:5173"], // or your frontend URL
+    origin: ["http://localhost:8081","http://localhost:5173"], // or your frontend URL
     credentials: true
   }));
   

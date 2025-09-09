@@ -1,46 +1,40 @@
 const profilePageService = require("../services/profilePage.service");
-const mediaUpload = require('../middlewares/mediaUpload')
-const multer = require("multer");
 
 const profilePageController = {
   postUpload: async (req, res) => {
-    mediaUpload.array("media", 10)(req, res, async (err) => {
-      try {
-        if (err instanceof multer.MulterError) {
-          if (err.code === "LIMIT_FILE_SIZE") {
-            throw new Error("File too large. Max 25MB allowed.")
-          }
-          throw new Error (err.message);
-        } else if (err) {
-          throw new Error(err.message);
-        }
-
-        const userId = req.userId;
-
-        if (!req.files || req.files.length === 0) {
-          throw new Error("No files uploaded");
-        }
-
-        const description = req.body?.description;
-        const type = req.body?.type;
-
-        const result = await profilePageService.postUpload(
-          req.files[0].id.toString(),
-          description,
-          userId,
-          type,
-          req.files[0].contentType.split("/")[0]
-        );
-
-        res.status(200).json({
-          message: "Post uploaded successfully",
-          post: result,
-        });
-      } catch (err) {
-        console.error("Upload error:", err);
-       return res.status(400).json({ err: err, message: err.message, description: err?.description || '' })
+    try {
+      const userId = req.userId;
+      console.log("req.files :", req.files);
+      if (!req.files || req.files.length === 0) {
+        throw new Error("No files uploaded");
       }
-    });
+
+      const description = req.body?.description;
+      const type = req.body?.type;
+
+      const result = await profilePageService.postUpload(
+        req.files[0].id.toString(),
+        description,
+        userId,
+        type,
+        req.files[0].contentType.split("/")[0]
+      );
+
+      res.status(200).json({
+        message: "Post uploaded successfully",
+        post: result,
+      });
+    } catch (err) {
+      console.error("Upload error:", err);
+      return res
+        .status(400)
+        .json({
+          err: err,
+          message: err.message,
+          description: err?.description || "",
+        });
+    }
+    // });
   },
 
   deletePost: async (req, res) => {
@@ -67,12 +61,14 @@ const profilePageController = {
   getSelectedMechanic: async (req, res) => {
     try {
       const { user } = req.params;
-      console.log('user :', user.length)
-      console.log('user :', typeof(user))
+      console.log("user :", user.length);
+      console.log("user :", typeof user);
       if (!user) {
         throw new Error("user not found");
       }
-      const result = await profilePageService.getSelectedMechanic(user.toString());
+      const result = await profilePageService.getSelectedMechanic(
+        user.toString()
+      );
       return res.status(200).json(result);
     } catch (err) {
       console.error("Download error:", err);
@@ -80,29 +76,33 @@ const profilePageController = {
     }
   },
 
-  mediaDownload: async (req, res) => {
-    console.log('req')
-    try {
-      const { id } = req.params;
-      const { file, stream } = await profilePageService.getMediaStream(id);
+mediaDownload: async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { file, stream } = await profilePageService.getMediaStream(id);
 
-      if (!file) {
-        return res.status(404).json({ error: "Video not found" });
-      }
-
-      // Add CORS header to allow cross-origin requests
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-      res.setHeader("Access-Control-Allow-Headers", "Range");
-      res.setHeader("Accept-Ranges", "bytes");
-      res.setHeader("Content-Type", file.contentType);
-
-      stream.pipe(res);
-    } catch (err) {
-      console.error("Download error:", err);
-      res.status(500).json({ error: "Internal Server Error" });
+    if (!file) {
+      return res.status(404).json({ error: "file not found" });
     }
-  },
+
+    // ❌ REMOVE these manual headers:
+    // res.setHeader("Access-Control-Allow-Origin", "*");
+    // res.setHeader("Access-Control-Allow-Credentials", "true");
+    // res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    // res.setHeader("Access-Control-Allow-Headers", "Range");
+
+    // ✅ Keep only video-specific headers
+    res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Content-Type", file.contentType);
+    res.setHeader("Access-Control-Expose-Headers", "Content-Range, Accept-Ranges");
+
+    stream.pipe(res);
+  } catch (err) {
+    console.error("Download error:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+},
+
 
   postLikes: async (req, res) => {
     try {
@@ -159,17 +159,17 @@ const profilePageController = {
 
   resetPassword: async (req, res) => {
     try {
-    // from verifyToken middleware
+      // from verifyToken middleware
 
       const { password, page, id } = req.body;
-      const userId = page==='login' ? id : req.userId ;
-      console.log( password, page, id , userId)
+      const userId = page === "login" ? id : req.userId;
+      console.log(password, page, id, userId);
 
-      if (!password || password.length < 8 ) {
+      if (!password || password.length < 8) {
         return res.status(400).json({ message: "Invalid password" });
       }
-      if ( !userId) {
-        throw new Error("Invalid password" );
+      if (!userId) {
+        throw new Error("Invalid password");
       }
 
       await profilePageService.resetPassword(userId, password);

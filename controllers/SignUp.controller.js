@@ -35,6 +35,8 @@ const signUpController = () => ({
     try {
       const { userDetails } = req.body;
 
+      console.log('userDetails :', userDetails)
+
       if (!req.otpVerified) {
         return res.status(400).json({ error: "OTP not verified" });
       }

@@ -14,7 +14,7 @@ router.patch('/forgotPassword', profilePageController.resetPassword);
 
 
 // profile routes
-router.post('/postUpload',secureRoute,profilePageController.postUpload)
+router.post('/postUpload',secureRoute,mediaUpload,profilePageController.postUpload)
 router.get('/mediaDownload/:id',secureRoute,profilePageController.mediaDownload)
 router.get('/getSelectedMechanic/:user',secureRoute,profilePageController.getSelectedMechanic)
 router.post('/postLikes',secureRoute,profilePageController.postLikes)
