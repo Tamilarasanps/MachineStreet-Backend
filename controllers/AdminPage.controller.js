@@ -76,13 +76,29 @@ const adminPageController = {
 
   getIndustries: async (req, res) => {
     try {
+      
       const role = req.role;
-
       if (role !== "admin") {
-        return res.status(400).json({ message: "Access denied" });
+        throw new Error("Access denied");
       }
 
       const result = await adminRepository.getIndustries();
+
+      res.status(200).json(result);
+    } catch (err) {
+      console.error("Error:", err);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
+  getQrs: async (req, res) => {
+    try {
+      
+      const role = req.role;
+      if (role !== "admin") {
+        throw new Error("Access denied");
+      }
+
+      const result = await adminRepository.getQrs();
 
       res.status(200).json(result);
     } catch (err) {

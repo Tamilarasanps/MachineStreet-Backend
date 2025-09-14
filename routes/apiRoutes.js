@@ -3,6 +3,7 @@ const router = express.Router();
 const secureRoute = require('../middlewares/secureRoute');
 const profilePageController = require('../controllers/ProfilePage.controller');         
 const adminPageController = require('../controllers/AdminPage.controller');         
+const landingPageController = require('../controllers/LandingPage.controller')();         
 const mediaUpload = require('../middlewares/mediaUpload')
 
 const homepageController = require('../controllers/HomePage.controller')() 
@@ -34,6 +35,12 @@ router.patch('/admin/adminCategories/edit',secureRoute,adminPageController.editI
 router.get('/admin/getIndustries/',secureRoute,adminPageController.getIndustries)
 router.delete('/admin/deleteIndustry',secureRoute,adminPageController.deleteIndustry)
 router.delete('/admin/deleteCategory',secureRoute,adminPageController.deleteCategory)
+router.get('/admin/getQrs/',secureRoute,adminPageController.getQrs)
+
+// landing page
+
+router.get('/landingpage/',landingPageController.getCounts)
+
 
 module.exports = router;
 

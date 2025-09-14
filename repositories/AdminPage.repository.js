@@ -4,6 +4,7 @@ const {
   subCategory,
   brand,
 } = require("../models/Industry.model");
+const qr = require('../models/Qr.model')
 
 const adminRepository = {
   createIndustry: async (industryData, categoryData, subCategoriesData) => {
@@ -277,6 +278,17 @@ const adminRepository = {
       throw new Error("Failed to fetch industries.");
     }
   },
+  getQrs: async () => {
+  try {
+    // Fetch all QR codes as plain JavaScript objects
+    const qrCodes = await qr.find().lean();
+    return qrCodes;
+  } catch (error) {
+    console.error("Error fetching QR codes:", error.message);
+    throw new Error("Failed to fetch QR codes.");
+  }
+},
+
 };
 
 module.exports = adminRepository;
