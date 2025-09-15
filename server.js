@@ -2,7 +2,7 @@
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const {app,httpServer,express} = require('./socket.server.js')
-require('dotenv').config({ path: './utils/.env' });
+require('dotenv').config();
 
 
 // routes

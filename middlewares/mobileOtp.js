@@ -1,4 +1,4 @@
-require('dotenv').config({path : '../utils/.env'})
+require('dotenv').config()
 const twilio = require("twilio");
 
 

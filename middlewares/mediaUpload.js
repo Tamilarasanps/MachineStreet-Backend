@@ -12,7 +12,7 @@
 //   options: { useNewUrlParser: true, useUnifiedTopology: true },
 //   // create file info
 //   file: (req, file) => {
-//     console.log('file :', file) 
+//     console.log('file :', file)
 //     return new Promise((resolve, reject) => {
 //       crypto.randomBytes(16, (err, buf) => {
 //         console.log(err)
@@ -57,12 +57,10 @@
 
 // module.exports = mediaUpload;
 
-
 const multer = require("multer");
 const { GridFsStorage } = require("multer-gridfs-storage");
 const crypto = require("crypto");
-const path = require("path");
-
+require("dotenv").config();
 const storage = new GridFsStorage({
   url: process.env.MONGO_URI,
   options: { useNewUrlParser: true, useUnifiedTopology: true },

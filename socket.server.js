@@ -3,7 +3,7 @@ const http = require("http");
 const express = require("express");
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
-require("dotenv").config({ path: "./utils/.env" });
+require("dotenv").config();
 
 const app = express();
 
