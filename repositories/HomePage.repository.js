@@ -4,7 +4,7 @@ const { io } = require("../socket.server");
 const Fuse = require("fuse.js");
 
 const homepageRepository = () => ({
-  getMechanics: async (userId,page,limit) => {
+  getMechanics: async (userId, page, limit) => {
     // Convert to numbers (safety)
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
@@ -17,9 +17,8 @@ const homepageRepository = () => ({
           populate: { path: "userId", select: "username profileImage" },
         })
         .sort({ averageRating: -1 })
-        .skip(skip)      // ✅ pagination
-        .limit(limit);   // ✅ pagination
-
+        .skip(skip) // ✅ pagination
+        .limit(limit); // ✅ pagination
 
       const totalPages = await User.countDocuments({ role: "mechanic" });
 
@@ -173,7 +172,7 @@ const homepageRepository = () => ({
     try {
       // Create the new review first
       const newReview = await Review.create(review);
-
+  
       // Update the user by pushing new review & recalculate average rating
       const updatedUser = await User.findOneAndUpdate(
         { _id: userId },
@@ -190,10 +189,18 @@ const homepageRepository = () => ({
                   ],
                 },
               });
+  
               const totalStars = reviews.reduce((sum, r) => sum + r.star, 0);
-              console.log('totalStars :', totalStars)
-              console.log('totalStars type :', typeof(totalStars))
-              return (totalStars / reviews.length).toFixed(1);
+              console.log("totalStars :", totalStars);
+              console.log("totalStars type :", typeof totalStars);
+  
+              const avgRating =
+                reviews.length > 0
+                  ? Number((totalStars / reviews.length).toFixed(1))
+                  : totalStars;
+  
+              console.log("avgRating :", avgRating);
+              return avgRating;
             })(),
           },
         },
@@ -202,18 +209,20 @@ const homepageRepository = () => ({
         path: "reviews",
         populate: { path: "userId", select: "username profileImage" },
       });
+  
       if (!updatedUser) {
         throw new Error("User not found");
       }
-
+  
       // Emit socket event with fully populated data
       io.emit("update-review", updatedUser);
-
+  
       return updatedUser;
     } catch (err) {
       throw err;
     }
   },
+  
 });
 
 module.exports = homepageRepository;
