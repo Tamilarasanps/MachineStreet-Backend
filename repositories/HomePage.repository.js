@@ -20,6 +20,7 @@ const homepageRepository = () => ({
         .skip(skip)      // ✅ pagination
         .limit(limit);   // ✅ pagination
 
+
       const totalPages = await User.countDocuments({ role: "mechanic" });
 
       const locationData = await User.aggregate([
@@ -190,6 +191,8 @@ const homepageRepository = () => ({
                 },
               });
               const totalStars = reviews.reduce((sum, r) => sum + r.star, 0);
+              console.log('totalStars :', totalStars)
+              console.log('totalStars type :', typeof(totalStars))
               return (totalStars / reviews.length).toFixed(1);
             })(),
           },
@@ -199,7 +202,6 @@ const homepageRepository = () => ({
         path: "reviews",
         populate: { path: "userId", select: "username profileImage" },
       });
-
       if (!updatedUser) {
         throw new Error("User not found");
       }

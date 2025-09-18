@@ -54,6 +54,7 @@ const homepageController = () => ({
       let review = req.body.review;
 
       const userId = review?.userId;
+      console.log('userId :',userId)
       review = {
         ...review,
         userId: reviewer,
