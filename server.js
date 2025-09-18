@@ -14,13 +14,19 @@ const apiRoutes = require('./routes/apiRoutes.js')
 
 // const app = express();
 
-app.use(cors({
-    origin: ["http://localhost:8081","http://localhost:5173"], // or your frontend URL
-    credentials: true
-  }));
+// app.use(cors({
+//     origin: ["http://localhost:8081","http://10.255.87.158:5000",'http://192.168.1.10:5000'], // or your frontend URL
+//     credentials: true
+//   }));
   
 app.use(cookieParser())
 app.use(express.json())
+
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.originalUrl}`);
+  next();
+});
+
 
 // middlewares
 
@@ -37,4 +43,4 @@ app.use('/api', apiRoutes)
 
 // server
 
-httpServer.listen(process.env.PORT, () => console.log(`app listening Port ${process.env.PORT}`))
+httpServer.listen(process.env.PORT,'0.0.0.0', () => console.log(`app listening Port ${process.env.PORT}`))

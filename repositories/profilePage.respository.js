@@ -150,7 +150,10 @@ const profilePageRepository = {
           },
         ],
         { new: true }
-      );
+      ).populate({
+        path: "comments",
+            populate: { path: "userId", select: "username profileImage" },
+      }).lean();
 
       if (!updatedPost) {
         throw new Error("User not found");

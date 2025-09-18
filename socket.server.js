@@ -12,7 +12,7 @@ const httpServer = http.createServer(app); //create http server for app
 const io = new Server(httpServer, {
   // enabling cors
   cors: {
-    origin: ["http://localhost:8081", "http://localhost:5000","http://192.168.1.11:5000"],
+    origin: ["http://localhost:8081", "http://localhost:5000","http://192.168.1.10:5000"],
     methods: ["GET", "POST"],
     credentials: true,
   },

@@ -79,6 +79,7 @@ const profilePageController = {
 mediaDownload: async (req, res) => {
   try {
     const { id } = req.params;
+    console.log('id :',id)
     const { file, stream } = await profilePageService.getMediaStream(id);
 
     if (!file) {
@@ -90,6 +91,7 @@ mediaDownload: async (req, res) => {
     // res.setHeader("Access-Control-Allow-Credentials", "true");
     // res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
     // res.setHeader("Access-Control-Allow-Headers", "Range");
+    console.log("Serving file with contentType:", file.contentType);
 
     // ✅ Keep only video-specific headers
     res.setHeader("Accept-Ranges", "bytes");

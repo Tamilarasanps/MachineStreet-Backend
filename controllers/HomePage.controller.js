@@ -1,4 +1,5 @@
 const homepageService = require("../services/HomePage.service");
+// const location = require('../middlewares/getCurrentLocation')
 
 const homepageController = () => ({
   getMechanics: async (req, res) => {
@@ -6,10 +7,11 @@ const homepageController = () => ({
       const userId = req.userId;
       const limit = req.query.limit;
       const page = req.query.page;
+
+      // const currentlocation = await location();
       
       let result = await homepageService().getMechanics(userId,page,limit);
       result.qr = req.qr;
-      console.log(req.qr);
 
       return res.status(200).json(result);
     } catch (err) {
@@ -22,7 +24,7 @@ const homepageController = () => ({
   },
 
   getSearchResult: async (req, res) => {
-    console.log("triggered");
+
     try {
       const { page, searchQuery } = req.query;
 
