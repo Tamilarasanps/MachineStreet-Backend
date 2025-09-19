@@ -190,16 +190,19 @@ const homepageRepository = () => ({
                 },
               });
   
-              const totalStars = reviews.reduce((sum, r) => sum + r.star, 0);
+              const totalStars = reviews.reduce((sum, r) => {
+                console.log("sum so far:", sum, " | current review:", r, " | r.star:", r.star);
+                const star = Number(r.star) || 0;
+                return sum + star;
+              }, 0);
               console.log("totalStars :", totalStars);
               console.log("totalStars type :", typeof totalStars);
   
               const avgRating =
                 reviews.length > 0
                   ? Number((totalStars / reviews.length).toFixed(1))
-                  : totalStars;
+                  : newReview.star;
   
-              console.log("avgRating :", avgRating);
               return avgRating;
             })(),
           },

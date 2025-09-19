@@ -12,7 +12,7 @@ const httpServer = http.createServer(app); //create http server for app
 const io = new Server(httpServer, {
   // enabling cors
   cors: {
-    origin: ["http://localhost:8081", "http://localhost:5000","http://192.168.1.10:5000"],
+    origin: ["https://machinestreets.com", "https://api.machinestreets.com",],       
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -22,14 +22,24 @@ const io = new Server(httpServer, {
 
 io.on("connection", (socket) => {
   console.log("A client connected with ID:", socket.id);
-  const rawCookie = socket.handshake.headers.cookie; //get cookies
+  let token;
 
-  if (!rawCookie || rawCookie === "undefined") {
+  // Prefer token from query (mobile/web RN)
+  if (socket.handshake.query?.token) {
+    token = socket.handshake.query.token;
+  } else {
+    // fallback: from cookie (browser case)
+    const rawCookie = socket.handshake.headers.cookie;
+    if (rawCookie && rawCookie !== "undefined") {
+      const parsedCookie = cookie.parse(rawCookie);
+      token = parsedCookie?.authToken;
+    }
+  }
+
+  if (!token) {
+    console.log("❌ No token provided, disconnecting");
     return socket.disconnect();
   }
-  const parsedCookie = cookie.parse(rawCookie); //parse cookie
-  const token = socket.handshake.query.token || parsedCookie.authToken; //get actual token
-
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
