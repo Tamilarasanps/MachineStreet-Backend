@@ -49,46 +49,29 @@ const profilePageRepository = {
   },
 
   deletePost: async (postId, userId) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
-      // 1. Remove post from user's posts array
       const updatedUser = await User.findOneAndUpdate(
         { _id: userId },
         { $pull: { posts: postId } },
-        { new: true, session }
+        { new: true }
       ).populate({
         path: "posts",
-        options: { sort: { createdAt: -1 } }, // newest first
+        options: { sort: { createdAt: -1 } },
         populate: {
           path: "comments",
           populate: { path: "userId", select: "username profileImage" },
         },
       }).lean();
-
+  
       if (!updatedUser) throw new Error("User not found");
-
-      // 2. Delete the post
-      await Post.deleteOne({ _id: postId }, { session });
-
-      // 3. (Optional) Delete related comments
-      await Comment.deleteMany({ postId }, { session });
-
-      // 4. Commit if all queries succeed
-      await session.commitTransaction();
-
-      // 5. Emit socket event after success
+  
+      await Post.deleteOne({ _id: postId });
+      await Comment.deleteMany({ postId });
+  
       io.emit("post-delete", updatedUser);
-
       return updatedUser;
     } catch (err) {
-      // Rollback changes if any query fails
-      await session.abortTransaction();
       throw err;
-    } finally {
-      // Always close session
-      session.endSession();
     }
   },
 
