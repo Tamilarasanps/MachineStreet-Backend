@@ -20,7 +20,8 @@ const homepageRepository = () => ({
         .skip(skip) // ✅ pagination
         .limit(limit); // ✅ pagination
 
-      const totalPages = await User.countDocuments({ role: "mechanic" });
+        const totalDocs = await User.countDocuments({ role: "mechanic" });
+        const totalPages = Math.ceil(totalDocs / limit);
 
       const locationData = await User.aggregate([
         {
