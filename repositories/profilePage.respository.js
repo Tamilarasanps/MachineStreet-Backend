@@ -191,7 +191,9 @@ const profilePageRepository = {
           mobile: userDetails.mobile,
           country: userDetails.country,
           region: userDetails.region,
-          district: userDetails?.district,
+          city: userDetails?.city,
+          street: userDetails?.street,
+          pincode: userDetails?.pincode,
         },
         { new: true } // return the updated document
       );

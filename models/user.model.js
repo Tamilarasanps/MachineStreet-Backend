@@ -20,17 +20,14 @@ const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      unique: true,
       validate: {
         validator: function (value) {
-          console.log('ok l :',this.role)
           if (this.role === "mechanic") {
             return value && value.length >= 3;
           }
           return true; // allow empty or undefined for other roles
         },
-        message:
-          "Username must be at least 3 characters long.",
+        message: "Username must be at least 3 characters long.",
       },
     },
     profileImage: {
@@ -87,20 +84,8 @@ const userSchema = new mongoose.Schema(
       type: [String],
       spasrse: true,
     },
-
-    geoCoords: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number], // [longitude, latitude]
-        // required: function () {
-        //   return this.role === "mechanic";
-        // },
-      },
-    },
+    lat: { type: Number, sparse: true },
+    long: { type: Number, sparse: true },
     country: {
       type: String,
       required: function () {
@@ -113,8 +98,16 @@ const userSchema = new mongoose.Schema(
         return this.role === "mechanic";
       },
     },
-    district: {
+    city: {
       type: String,
+      sparse: true,
+    },
+    street: {
+      type: String,
+      sparse: true,
+    },
+    pincode: {
+      type: Number,
       sparse: true,
     },
 

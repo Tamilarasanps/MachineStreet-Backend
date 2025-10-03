@@ -17,28 +17,28 @@ const signUpRepo = () => ({
       const result = {};
 
       const db = mongoose.connection.db;
-      const states = await db
-          .collection("states")
-          .find({
-              _id: {
-                  $in: ["6846c228b2a889fa645ef28d", "6846c641b2a889fa645ef28f"],
-              },
-          })
-          .toArray();
-
-      // const { ObjectId } = mongoose.Types;
-
-      // const objectIds = [
-      //   new ObjectId("6828db2e5b39026cc95691ca"),
-      //   new ObjectId("6828e0fa5b39026cc9569208"),
-      // ];
-
       // const states = await db
-      //   .collection("states")
-      //   .find({
-      //     _id: { $in: objectIds },
-      //   })
-      //   .toArray();
+      //     .collection("states")
+      //     .find({
+      //         _id: {
+      //             $in: ["6846c228b2a889fa645ef28d", "6846c641b2a889fa645ef28f"],
+      //         },
+      //     })
+      //     .toArray();
+
+      const { ObjectId } = mongoose.Types;
+
+      const objectIds = [
+        new ObjectId("6828db2e5b39026cc95691ca"),
+        new ObjectId("6828e0fa5b39026cc9569208"),
+      ];
+
+      const states = await db
+        .collection("states")
+        .find({
+          _id: { $in: objectIds },
+        })
+        .toArray();
 
       // const states = await db.collection("states").aggregate([
       //     {
