@@ -1,9 +1,9 @@
 const homepageRepository = require("../repositories/HomePage.repository");
 
 const homepageService = () => ({
-  getMechanics: async (userId,page,limit) => {
+  getMechanics: async (userId,page,limit,lat,long) => {
     try {
-      const result = await homepageRepository().getMechanics(userId,page,limit);
+      const result = await homepageRepository().getMechanics(userId,page,limit,lat,long);
 
       return result;
     } catch (err) {

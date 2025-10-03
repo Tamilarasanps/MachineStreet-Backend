@@ -6,11 +6,13 @@ const homepageController = () => ({
     try {
       const userId = req.userId;
       const limit = req.query.limit;
+      const lat = req.query.lat;
+      const long = req.query.long;
       const page = req.query.page;
 
       // const currentlocation = await location();
       
-      let result = await homepageService().getMechanics(userId,page,limit);
+      let result = await homepageService().getMechanics(userId,page,limit,lat,long);
       result.qr = req.qr;
 
       return res.status(200).json(result);

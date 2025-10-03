@@ -35,14 +35,18 @@ const signUpController = () => ({
     try {
       const { userDetails } = req.body;
 
-      console.log('userDetails :', userDetails)
-
       if (!req.otpVerified) {
         return res.status(400).json({ error: "OTP not verified" });
       }
 
       // call service to register
-      const result = await signUpService().register(userDetails);
+      const result = await signUpService().register({
+        ...userDetails,
+        location: {
+          type: "Point",
+          coordinates: [userDetails.lon || 0, userDetails.lat || 0],
+        },
+      });
 
       const secretKey = process.env.JWT_SECRET;
       const token = jwt.sign({ userId: result._id.toString() }, secretKey, {

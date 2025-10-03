@@ -4,29 +4,55 @@ const { io } = require("../socket.server");
 const Fuse = require("fuse.js");
 
 const homepageRepository = () => ({
-  getMechanics: async (userId, page, limit) => {
-    // Convert to numbers (safety)
+  getMechanics: async (userId, page, limit, lat, long) => {
     page = parseInt(page) || 1;
     limit = parseInt(limit) || 10;
-
     const skip = (page - 1) * limit;
+
     try {
-      const result = await User.find({ role: "mechanic" })
-        .populate({
-          path: "reviews",
-          populate: { path: "userId", select: "username profileImage" },
-        })
-        .sort({ averageRating: -1 })
-        .skip(skip) // ✅ pagination
-        .limit(limit); // ✅ pagination
+      let mechanicsQuery = { role: "mechanic" };
 
-        const totalDocs = await User.countDocuments({ role: "mechanic" });
-        const totalPages = Math.ceil(totalDocs / limit);
+      let result = [];
 
+      if (lat && long) {
+        // ✅ Use geospatial query if user lat/long available
+        result = await User.aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [parseFloat(long), parseFloat(lat)], // longitude first!
+              },
+              distanceField: "distance", // calculated distance
+              spherical: true,
+              query: mechanicsQuery,
+            },
+          },
+          {
+            $sort: { distance: 1 }, // nearest first
+          },
+          { $skip: skip },
+          { $limit: limit },
+        ]);
+      } else {
+        // ✅ Fallback: if lat/long not available → return mechanics without geospatial filter
+        result = await User.find(mechanicsQuery)
+          .populate({
+            path: "reviews",
+            populate: { path: "userId", select: "username profileImage" },
+          })
+          .sort({ averageRating: -1 }) // fallback sort
+          .skip(skip)
+          .limit(limit);
+      }
+
+      // ✅ total count (without disturbing flow)
+      const totalDocs = await User.countDocuments(mechanicsQuery);
+      const totalPages = Math.ceil(totalDocs / limit);
+
+      // ✅ Filters (keep existing code)
       const locationData = await User.aggregate([
-        {
-          $match: { role: "mechanic" }, // Only include mechanics
-        },
+        { $match: { role: "mechanic" } },
         {
           $addFields: {
             groupRegion: {
@@ -40,7 +66,7 @@ const homepageRepository = () => ({
               $cond: {
                 if: { $ne: ["$country", "India"] },
                 then: "$region",
-                else: "$district",
+                else: "$city",
               },
             },
           },
@@ -55,72 +81,44 @@ const homepageRepository = () => ({
           $project: {
             _id: 0,
             region: "$_id",
-            district: {
-              $sortArray: {
-                input: "$district",
-                sortBy: 1,
-              },
-            },
+            district: { $sortArray: { input: "$district", sortBy: 1 } },
           },
         },
-        {
-          $sort: { region: 1 },
-        },
+        { $sort: { region: 1 } },
       ]);
 
       const industryData = await User.aggregate([
-        {
-          $match: { role: "mechanic" },
-        },
-        {
-          $unwind: "$subcategory",
-        },
+        { $match: { role: "mechanic" } },
+        { $unwind: "$subcategory" },
         {
           $group: {
             _id: "$industry",
             category: { $addToSet: "$subcategory.name" },
           },
         },
-        {
-          $project: {
-            _id: 0,
-            industry: "$_id",
-            category: 1,
-          },
-        },
+        { $project: { _id: 0, industry: "$_id", category: 1 } },
       ]);
+
       const categoryData = await User.aggregate([
-        {
-          $match: { role: "mechanic" },
-        },
-        {
-          $unwind: "$subcategory",
-        },
-        {
-          $unwind: "$subcategory.services",
-        },
+        { $match: { role: "mechanic" } },
+        { $unwind: "$subcategory" },
+        { $unwind: "$subcategory.services" },
         {
           $group: {
             _id: "$subcategory.name",
             subcategories: { $addToSet: "$subcategory.services" },
           },
         },
-        {
-          $project: {
-            _id: 0,
-            category: "$_id",
-            subcategories: 1,
-          },
-        },
+        { $project: { _id: 0, category: "$_id", subcategories: 1 } },
       ]);
 
       return {
         userData: result,
-        totalPages: totalPages,
+        totalPages,
         filterData: {
-          locationData: locationData,
-          industryData: industryData,
-          categoryData: categoryData,
+          locationData,
+          industryData,
+          categoryData,
         },
       };
     } catch (err) {
@@ -173,7 +171,7 @@ const homepageRepository = () => ({
     try {
       // Create the new review first
       const newReview = await Review.create(review);
-  
+
       // Update the user by pushing new review & recalculate average rating
       const updatedUser = await User.findOneAndUpdate(
         { _id: userId },
@@ -190,20 +188,27 @@ const homepageRepository = () => ({
                   ],
                 },
               });
-  
+
               const totalStars = reviews.reduce((sum, r) => {
-                console.log("sum so far:", sum, " | current review:", r, " | r.star:", r.star);
+                console.log(
+                  "sum so far:",
+                  sum,
+                  " | current review:",
+                  r,
+                  " | r.star:",
+                  r.star
+                );
                 const star = Number(r.star) || 0;
                 return sum + star;
               }, 0);
               console.log("totalStars :", totalStars);
               console.log("totalStars type :", typeof totalStars);
-  
+
               const avgRating =
                 reviews.length > 0
                   ? Number((totalStars / reviews.length).toFixed(1))
                   : newReview.star;
-  
+
               return avgRating;
             })(),
           },
@@ -213,20 +218,19 @@ const homepageRepository = () => ({
         path: "reviews",
         populate: { path: "userId", select: "username profileImage" },
       });
-  
+
       if (!updatedUser) {
         throw new Error("User not found");
       }
-  
+
       // Emit socket event with fully populated data
       io.emit("update-review", updatedUser);
-  
+
       return updatedUser;
     } catch (err) {
       throw err;
     }
   },
-  
 });
 
 module.exports = homepageRepository;
