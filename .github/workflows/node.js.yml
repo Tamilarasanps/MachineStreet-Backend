@@ -33,6 +33,11 @@ jobs:
           echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
+          echo "PIN4SMS_KEY=${{ secrets.PIN4SMS_KEY }}" >> .env
+          echo "PIN4SMS_ROUTE=${{ secrets.PIN4SMS_ROUTE }}" >> .env
+          echo "PIN4SMS_SENDERS_ID=${{ secrets.PIN4SMS_SENDERS_ID }}" >> .env
+          echo "PIN4SMS_TEMPLATE_ID=${{ secrets.PIN4SMS_TEMPLATE_ID }}" >> .env
 
 
       - name: Install dependencies
