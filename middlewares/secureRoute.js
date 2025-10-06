@@ -30,7 +30,7 @@ const secureRoute = async (req, res, next) => {
         req.qr = user.qr
         next();
     } catch (error) {
-        return res.status(401).json({ error: "Unauthorized Please Login" });
+        return res.status(401).json({ message: "Unauthorized Please Login" });
     }
 };
 
