@@ -76,8 +76,7 @@ const profilePageRepository = {
   },
 
   getSelectedMechanic: async (id) => {
-    console.log('id :', typeof(id))
-    console.log('id :',id)
+ 
     try {
       const result = await User.findOne({ _id: id })
         .populate({
@@ -142,7 +141,7 @@ const profilePageRepository = {
         throw new Error("User not found");
       }
       // emits socket
-      io.emit("likes-update", updatedPost);
+      // io.emit("likes-update", updatedPost);
       return updatedPost;
     } catch (err) {
       throw err;
@@ -169,7 +168,7 @@ const profilePageRepository = {
       }
 
       // Emit socket event
-      io.emit("likes-update", updatedPost);
+      io.emit("comment-update", updatedPost);
 
       return updatedPost;
     } catch (err) {

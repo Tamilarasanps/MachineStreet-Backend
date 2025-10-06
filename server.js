@@ -17,6 +17,7 @@ const apiRoutes = require("./routes/apiRoutes.js");
 //   cors({
 //     origin: [
 //       "http://localhost:8081",
+//       "http://192.168.1.10:8081",
 //       "http://10.255.87.158:5000",
 //       "http://192.168.1.10:5000",
 //     ], // or your frontend URL
